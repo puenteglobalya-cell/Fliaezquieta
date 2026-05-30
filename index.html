@@ -186,7 +186,7 @@
         </main>
     </div>
 
-    <!-- PROGRAMACIÓN PRINCIPAL - CONTROLADORES DE VARIABLES GLOBALES DE CONFIANZA -->
+    <!-- PROGRAMACIÓN PRINCIPAL -->
     <script type="text/javascript">
         window.familia = JSON.parse(localStorage.getItem('sinergia_familia')) || {
             perfil1: { id: 'perfil1', nombre: 'Emilia 6a', tipo: 'infantil', subtipo: 'hija_6', nivel: 'Initial', score: 120, racha: 5, misionIndex: 0 },
@@ -208,7 +208,7 @@
             ],
             food: [
                 { pregunta: "How many apples? (2 apples + 1 apple)", audioText: "Two apples plus one apple. How many?", opciones: [{ texto: "Two", correcta: false }, { texto: "Three", correcta: true }, { texto: "Four", correcta: false }] },
-                { pregunta: "Perfect! Now double it: 3 blocks + 3 blocks", audioText: "Three blocks plus three blocks. What is the total?", opciones: [{ texto: "Five", correcta: false }, { texto: "Six", correcta: true }, { pointer: "Eight", correcta: false }] }
+                { pregunta: "Perfect! Now double it: 3 blocks + 3 blocks", audioText: "Three blocks plus three blocks. What is the total?", opciones: [{ texto: "Five", correcta: false }, { texto: "Six", correcta: true }, { texto: "Eight", correcta: false }] }
             ],
             greetings: [
                 { pregunta: "How do you say 'Hola' in English?", audioText: "How do you say hola in English?", opciones: [{ texto: "Goodbye", correcta: false }, { texto: "Hello", correcta: true }] }
@@ -404,7 +404,8 @@
 
         function actualizarLeaderboardUI() {
             const list = document.getElementById('leaderboard-list');
-            if(!list) return; list.innerHTML = '';
+            if(!list) return;
+            list.innerHTML = '';
             let ordenados = Object.values(window.familia).sort((a, b) => b.score - a.score);
             ordenados.forEach((p, idx) => {
                 let li = document.createElement('li');
@@ -421,7 +422,8 @@
 
         function renderizarConfiguracionPerfiles() {
             const container = document.getElementById('profiles-config-container');
-            if(!container) return; container.innerHTML = '';
+            if(!container) return;
+            container.innerHTML = '';
             Object.values(window.familia).forEach(p => {
                 let card = document.createElement('div');
                 card.className = "bg-slate-50 border p-3 rounded-xl space-y-2 text-xs";
@@ -444,7 +446,8 @@
 
         function renderizarBotonesPerfil() {
             const container = document.getElementById('profile-buttons-container');
-            if(!container) return; container.innerHTML = '';
+            if(!container) return;
+            container.innerHTML = '';
             Object.values(window.familia).forEach(p => {
                 let btn = document.createElement('button');
                 btn.className = "font-bold px-3 py-1 rounded-lg border text-xs bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700 transition-colors";
@@ -456,7 +459,8 @@
 
         function renderizarSelectorEscenariosAdultos() {
             const container = document.getElementById('grid-escenarios-adultos');
-            if(!container) return; container.innerHTML = '';
+            if(!container) return;
+            container.innerHTML = '';
             Object.values(bancoEscenariosFijos).forEach(e => {
                 let btn = document.createElement('button');
                 btn.id = `btn-esc-${e.id}`;
@@ -467,7 +471,6 @@
             });
         }
 
-        // Ejecuciones iniciales automáticas
         inicializarVoces();
         inicializarReconocimientoVoz();
         renderizarConfiguracionPerfiles();
@@ -476,9 +479,8 @@
         window.cambiarPerfil('perfil1');
     </script>
 
-    <!-- CONEXIÓN PUENTE CON TU PROPIO SERVIDOR EN VERCEL (SEGURO Y SIN CORS) -->
+    <!-- CONEXIÓN CON SERVIDOR VERCEL -->
     <script type="text/javascript">
-        // DISPARADOR A: Solicitar Escenario Sorpresa a tu servidor
         window.generarEscenarioSorpresaAI = async function() {
             document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
             document.getElementById('chat-prompt').innerHTML = "<span class='text-blue-500 animate-pulse'>Vercel está despertando a Gemini para armar tu rol...</span>";
@@ -505,7 +507,6 @@
                 document.getElementById('user-transcript').classList.add('hidden');
                 document.getElementById('ai-evaluation').classList.add('hidden');
                 
-                // Habla el personaje
                 window.speechSynthesis.cancel();
                 let utterance = new SpeechSynthesisUtterance(window.escenarioAdultoActivo.prompt);
                 utterance.lang = 'en-US';
@@ -518,7 +519,6 @@
             }
         };
 
-        // DISPARADOR B: Enviar el texto de tu voz real para evaluar en el servidor
         window.dispatchGeminiVoz = async function(textoVozReal) {
             const p = window.familia[window.perfilActualId];
             document.getElementById('user-transcript').innerHTML = `<strong>[Tu Voz en Inglés]:</strong> "${textoVozReal}"`;
@@ -549,34 +549,15 @@
                     <p class="text-emerald-600 font-extrabold mt-1">🎉 ¡Ganaste +${resJson.xp} XP para el ranking familiar!</p>
                 `;
                 
-                // Respuesta hablada nativa
                 window.speechSynthesis.cancel();
                 let utterance = new SpeechSynthesisUtterance(resJson.reply);
                 utterance.lang = 'en-US';
                 utterance.rate = 0.85;
                 window.speechSynthesis.speak(utterance);
 
-                // Actualizar puntuación y persistir
                 p.score += resJson.xp;
                 localStorage.setItem('sinergia_familia', JSON.stringify(window.familia));
-                
-                // Forzar refresco de Leaderboard inmediato
-                const list = document.getElementById('leaderboard-list');
-                if(list) {
-                    list.innerHTML = '';
-                    let ordenados = Object.values(window.familia).sort((a, b) => b.score - a.score);
-                    ordenados.forEach((per, idx) => {
-                        let li = document.createElement('li');
-                        if (idx === 0) {
-                            li.className = "flex justify-between items-center bg-blue-50 p-2 rounded-lg text-slate-900 font-bold text-xs border border-blue-100 shadow-sm";
-                            li.innerHTML = `<span>🏆 ${per.nombre}</span> <span>${per.score} XP</span>`;
-                        } else {
-                            li.className = "flex justify-between items-center px-2 py-1 text-[11px]";
-                            li.innerHTML = `<span>${idx + 1}. ${per.nombre}</span> <span class="font-semibold text-slate-500">${per.score} XP</span>`;
-                        }
-                        list.appendChild(per);
-                    });
-                }
+                actualizarLeaderboardUI();
 
             } catch (e) {
                 evalDiv.innerText = "Error en el payload devuelto por el servidor de Vercel.";
