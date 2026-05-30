@@ -207,7 +207,7 @@
             <div class="space-y-1.5">
                 <div class="flex items-center gap-2">
                     <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Conversational English · Gemini AI</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Conversational English · AI</span>
                 </div>
                 <h1 id="subtitulo-adulto" class="text-xl font-extrabold text-slate-900">Active Explorer</h1>
             </div>
@@ -295,7 +295,6 @@ const SCENARIO_STYLES = {
     taxi:       { icon:'🚕', bg:'bg-emerald-50 hover:bg-emerald-100 border-emerald-200', active:'bg-emerald-100 border-emerald-500 text-emerald-700 border-2' }
 };
 
-// ── Word Match bank ──────────────────────────────────────────────────────────
 const WORD_MATCH_BANK = [
     {en:'hello',        es:'hola'},
     {en:'thank you',    es:'gracias'},
@@ -319,7 +318,6 @@ const WORD_MATCH_BANK = [
     {en:'happy',        es:'feliz'},
 ];
 
-// ── Questions — Tier 1 (easy) + Tier 2 (harder) ─────────────────────────────
 const MISIONES = {
     greetings: {
         tier1: [
@@ -411,7 +409,6 @@ const MISIONES = {
     }
 };
 
-// ── Word Match state ─────────────────────────────────────────────────────────
 let wmState = { selectedEN: null, matched: 0, pairs: [], correctCount: 0 };
 
 window.mostrarWordMatch = function() {
@@ -419,34 +416,6 @@ window.mostrarWordMatch = function() {
     const shuffES = [...pool.map((p,i) => ({...p, idx:i}))].sort(() => Math.random() - 0.5);
     wmState = { selectedEN: null, matched: 0, pairs: pool };
 
-    const colEN = document.getElementById('wm-col-en');
-    const colES = document.getElementById('wm-col-es');
-    colEN.innerHTML = '';
-    colES.innerHTML = '';
-
-    // Dots progress indicator
-    const dots = document.getElementById('wm-dots');
-    dots.innerHTML = pool.map((_,i) => `<span id="wm-dot-${i}" class="h-3 w-3 rounded-full bg-slate-200 transition-all"></span>`).join('');
-
-    pool.forEach((pair, i) => {
-        const btn = document.createElement('button');
-        btn.id        = `wm-en-${i}`;
-        btn.className = 'w-full py-3 px-3 bg-white border-2 border-blue-200 text-slate-800 font-bold rounded-2xl text-sm transition-all text-center';
-        btn.innerText = pair.en;
-        btn.onclick   = () => wmSelectEN(i);
-        colEN.appendChild(btn);
-    });
-
-    shuffES.forEach(pair => {
-        const btn = document.createElement('button');
-        btn.id        = `wm-es-${pair.idx}`;
-        btn.className = 'w-full py-3 px-3 bg-white border-2 border-emerald-200 text-slate-800 font-bold rounded-2xl text-sm transition-all text-center';
-        btn.innerText = pair.es;
-        btn.onclick   = () => wmSelectES(pair.idx);
-        colES.appendChild(btn);
-    });
-
-    // Reset card content (in case it was replaced on previous win)
     document.getElementById('wordmatch-card').innerHTML = `
         <div class="text-center space-y-1">
             <div class="text-4xl">🎮</div>
@@ -461,17 +430,17 @@ window.mostrarWordMatch = function() {
             <div id="wm-dots" class="flex gap-1.5"></div>
         </div>`;
 
-    // Re-render after resetting innerHTML
     document.getElementById('wm-dots').innerHTML = pool.map((_,i) => `<span id="wm-dot-${i}" class="h-3 w-3 rounded-full bg-slate-200 transition-all"></span>`).join('');
-    const colEN2 = document.getElementById('wm-col-en');
-    const colES2 = document.getElementById('wm-col-es');
+    const colEN = document.getElementById('wm-col-en');
+    const colES = document.getElementById('wm-col-es');
+
     pool.forEach((pair, i) => {
         const btn = document.createElement('button');
         btn.id = `wm-en-${i}`;
         btn.className = 'w-full py-3 px-3 bg-white border-2 border-blue-200 text-slate-800 font-bold rounded-2xl text-sm transition-all text-center';
         btn.innerText = pair.en;
         btn.onclick = () => wmSelectEN(i);
-        colEN2.appendChild(btn);
+        colEN.appendChild(btn);
     });
     shuffES.forEach(pair => {
         const btn = document.createElement('button');
@@ -479,7 +448,7 @@ window.mostrarWordMatch = function() {
         btn.className = 'w-full py-3 px-3 bg-white border-2 border-emerald-200 text-slate-800 font-bold rounded-2xl text-sm transition-all text-center';
         btn.innerText = pair.es;
         btn.onclick = () => wmSelectES(pair.idx);
-        colES2.appendChild(btn);
+        colES.appendChild(btn);
     });
 
     document.getElementById('wordmatch-overlay').classList.remove('hidden');
@@ -489,7 +458,6 @@ window.mostrarWordMatch = function() {
 function wmSelectEN(idx) {
     const btn = document.getElementById(`wm-en-${idx}`);
     if (!btn || btn.disabled) return;
-    // deselect previous
     if (wmState.selectedEN !== null) {
         const prev = document.getElementById(`wm-en-${wmState.selectedEN}`);
         if (prev && !prev.disabled) prev.className = 'w-full py-3 px-3 bg-white border-2 border-blue-200 text-slate-800 font-bold rounded-2xl text-sm transition-all text-center';
@@ -505,7 +473,6 @@ function wmSelectES(idx) {
     if (!btnES || btnES.disabled) return;
 
     if (wmState.selectedEN === idx) {
-        // ✅ Correct!
         const btnEN = document.getElementById(`wm-en-${wmState.selectedEN}`);
         [btnEN, btnES].forEach(b => {
             if (b) {
@@ -520,11 +487,8 @@ function wmSelectES(idx) {
         hablarNativo(wmState.pairs[idx].en);
         if (wmState.matched === 4) setTimeout(wmComplete, 700);
     } else {
-        // ❌ Wrong — shake
         btnES.classList.add('wrong-shake', 'bg-rose-50', 'border-rose-400');
-        setTimeout(() => {
-            btnES.classList.remove('wrong-shake', 'bg-rose-50', 'border-rose-400');
-        }, 500);
+        setTimeout(() => btnES.classList.remove('wrong-shake', 'bg-rose-50', 'border-rose-400'), 500);
     }
 }
 
@@ -535,8 +499,7 @@ function wmComplete() {
     document.getElementById('puntos-nena').innerText = p.score + ' XP';
     actualizarLeaderboardUI();
 
-    const card = document.getElementById('wordmatch-card');
-    card.innerHTML = `
+    document.getElementById('wordmatch-card').innerHTML = `
         <div class="text-center space-y-4 py-4">
             <div class="text-7xl">🏆</div>
             <h2 class="text-2xl font-extrabold text-slate-800">Perfect!</h2>
@@ -550,7 +513,6 @@ function wmComplete() {
     }, 3000);
 }
 
-// ── Profiles & state ─────────────────────────────────────────────────────────
 window.familia = JSON.parse(localStorage.getItem('sinergia_familia')) || {
     perfil1: { id:'perfil1', nombre:'Juliana',     tipo:'infantil', nivel:'Starter',            score:0, racha:0, misionIndex:0 },
     perfil2: { id:'perfil2', nombre:'Emilia',      tipo:'infantil', nivel:'Elementary',         score:0, racha:0, misionIndex:0 },
@@ -774,7 +736,6 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
         hablarNativo(p.misionIndex % 4 === 0 ? 'Brilliant! Get ready for the bonus game!' : 'Brilliant! Well done!');
 
         if (p.misionIndex % 4 === 0) {
-            // 🎮 Every 4 correct → Word Match mini-game
             setTimeout(() => window.mostrarWordMatch(), 2200);
         } else {
             setTimeout(() => window.seleccionarTematica(idTema), 1900);
@@ -876,11 +837,11 @@ window.cambiarPerfil('perfil1');
 <script type="text/javascript">
 window.generarEscenarioSorpresaAI = async function() {
     document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
-    document.getElementById('chat-prompt').innerHTML = "<span class='text-blue-400 animate-pulse text-sm'>Gemini is preparing your scene…</span>";
+    document.getElementById('chat-prompt').innerHTML = "<span class='text-blue-400 animate-pulse text-sm'>Preparing your scene…</span>";
     document.getElementById('user-transcript-wrapper').classList.add('hidden');
     document.getElementById('ai-evaluation-wrapper').classList.add('hidden');
     try {
-        const res     = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
+        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
             method:'POST', headers:{'Content-Type':'application/json'},
             body: JSON.stringify({ action:'generate_scenario', level: window.familia[window.perfilActualId].nivel })
         });
@@ -888,7 +849,11 @@ window.generarEscenarioSorpresaAI = async function() {
         if (data.error) throw new Error(data.error);
         window.escenarioAdultoActivo = { titulo: data.setup_title, prompt: data.ai_opening, systemInfo:'International travel roleplay scenario' };
         document.getElementById('escenario-titulo').innerText = `🎲 ${data.setup_title}`;
-        document.getElementById('chat-prompt').innerText = `"${data.ai_opening}"`;
+        document.getElementById('chat-prompt').innerHTML = `
+            <span class="cursor-pointer select-none" onclick="this.nextElementSibling.classList.toggle('hidden')" title="Tap to translate">
+                "${data.ai_opening}" <span class="text-blue-300 text-[10px]">🌐</span>
+            </span>
+            <span class="block text-slate-400 text-xs italic mt-1 hidden">${data.ai_opening_translation || ''}</span>`;
         hablarNativo(data.ai_opening);
     } catch(e) {
         document.getElementById('chat-prompt').innerText = 'Connection error — check Vercel deployment.';
@@ -916,13 +881,24 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
         const data = await res.json();
         if (data.error) throw new Error(data.error);
         evalDiv.innerHTML = `
-            <p class="font-medium leading-relaxed">${data.reply}</p>
-            <div class="mt-2 pt-2 border-t border-blue-100 space-y-1">
-                <p class="text-amber-600 text-xs font-semibold">💬 ${data.correction}</p>
-                <p class="text-emerald-600 text-xs font-bold">🎉 +${data.xp} XP earned!</p>
+            <p class="font-medium leading-relaxed cursor-pointer select-none"
+               onclick="this.nextElementSibling.classList.toggle('hidden')"
+               title="Tap to translate">
+                ${data.reply} <span class="text-blue-300 text-[10px]">🌐</span>
+            </p>
+            <p class="text-slate-400 text-xs italic mt-1 px-1 hidden">${data.translation || ''}</p>
+            <div class="mt-2 pt-2 border-t border-blue-100 space-y-1.5">
+                <div class="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                    <p class="text-amber-700 text-xs font-bold">✏️ ${data.correction}</p>
+                </div>
+                <p class="text-emerald-600 text-xs font-bold px-1">🎉 +${data.xp} XP earned!</p>
             </div>`;
         window.escenarioAdultoActivo.prompt = data.reply;
-        document.getElementById('chat-prompt').innerText = `"${data.reply}"`;
+        document.getElementById('chat-prompt').innerHTML = `
+            <span class="cursor-pointer select-none" onclick="this.nextElementSibling.classList.toggle('hidden')" title="Tap to translate">
+                "${data.reply}" <span class="text-blue-300 text-[10px]">🌐</span>
+            </span>
+            <span class="block text-slate-400 text-xs italic mt-1 hidden">${data.translation || ''}</span>`;
         hablarNativo(data.reply);
         p.score += data.xp;
         guardarEstado();
