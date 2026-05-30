@@ -93,6 +93,38 @@
     </div>
 </div>
 
+<!-- ═══ SHADOWING MODAL ═══ -->
+<div id="shadow-overlay" class="fixed inset-0 bg-slate-900/95 flex flex-col z-50 hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700">
+        <div>
+            <h2 class="text-white font-extrabold text-lg">🎭 Shadowing</h2>
+            <p id="shadow-context" class="text-slate-400 text-xs mt-0.5"></p>
+        </div>
+        <button onclick="cerrarShadowing()" class="text-slate-400 hover:text-white text-2xl font-bold transition-colors">✕</button>
+    </div>
+    <div id="shadow-lines" class="flex-1 overflow-y-auto px-4 py-4 space-y-3"></div>
+    <div id="shadow-mic-area" class="px-5 py-5 bg-slate-800 border-t border-slate-700 hidden">
+        <p class="text-slate-300 text-xs font-bold uppercase tracking-widest text-center mb-3">Your turn — repeat the line</p>
+        <div id="shadow-expected" class="bg-slate-700 rounded-2xl px-4 py-3 text-white font-medium text-sm text-center mb-4 cursor-pointer" onclick="shadowListenExpected()" title="Tap to hear it">
+        </div>
+        <div class="flex justify-center gap-4">
+            <button onclick="shadowListenExpected()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all">🔊 Hear it</button>
+            <button id="shadow-mic-btn" onclick="shadowToggleMic()" class="bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2">
+                🎙️ Speak
+            </button>
+        </div>
+        <p id="shadow-mic-status" class="text-slate-400 text-xs text-center mt-2 font-semibold uppercase tracking-widest"></p>
+    </div>
+    <div id="shadow-result-area" class="px-5 py-5 bg-slate-800 border-t border-slate-700 hidden">
+        <div class="text-center space-y-3">
+            <div class="text-5xl" id="shadow-trophy">🏆</div>
+            <p class="text-white font-extrabold text-xl" id="shadow-final-score"></p>
+            <p class="text-slate-400 text-sm" id="shadow-final-msg"></p>
+            <button onclick="cerrarShadowing()" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold px-8 py-3 rounded-2xl text-sm mt-2 transition-all active:scale-95">Done ✓</button>
+        </div>
+    </div>
+</div>
+
 <!-- ═══ SENTENCE BUILDER MODAL ═══ -->
 <div id="sb-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden p-4">
     <div id="sb-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 wm-pop">
@@ -170,27 +202,51 @@
     <main class="flex-1 max-w-lg mx-auto w-full">
 
         <!-- Topic selector -->
-        <div id="panel-tematicas" class="space-y-5">
+        <div id="panel-tematicas" class="space-y-4">
             <div class="text-center">
                 <h2 class="text-2xl font-extrabold text-slate-800">Choose your adventure! 🚀</h2>
                 <p class="text-slate-500 text-sm mt-1">Tap a topic to start</p>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="seleccionarTematica('greetings')" class="group bg-gradient-to-br from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
-                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">👋</div>
-                    <div class="font-extrabold text-lg">Greetings</div>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="seleccionarTematica('greetings')" class="group bg-gradient-to-br from-blue-400 to-blue-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👋</div>
+                    <div class="font-extrabold text-base">Greetings</div>
                 </button>
-                <button onclick="seleccionarTematica('numbers')" class="group bg-gradient-to-br from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
-                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">🔢</div>
-                    <div class="font-extrabold text-lg">Numbers</div>
+                <button onclick="seleccionarTematica('numbers')" class="group bg-gradient-to-br from-amber-400 to-orange-500 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🔢</div>
+                    <div class="font-extrabold text-base">Numbers</div>
                 </button>
-                <button onclick="seleccionarTematica('colors')" class="group bg-gradient-to-br from-rose-400 to-pink-600 hover:from-rose-500 hover:to-pink-700 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
-                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">🎨</div>
-                    <div class="font-extrabold text-lg">Colours</div>
+                <button onclick="seleccionarTematica('colors')" class="group bg-gradient-to-br from-rose-400 to-pink-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🎨</div>
+                    <div class="font-extrabold text-base">Colours</div>
                 </button>
-                <button onclick="seleccionarTematica('travel')" class="group bg-gradient-to-br from-emerald-400 to-teal-600 hover:from-emerald-500 hover:to-teal-700 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
-                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">✈️</div>
-                    <div class="font-extrabold text-lg">Travel</div>
+                <button onclick="seleccionarTematica('travel')" class="group bg-gradient-to-br from-emerald-400 to-teal-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">✈️</div>
+                    <div class="font-extrabold text-base">Travel</div>
+                </button>
+                <button onclick="seleccionarTematica('animals')" class="group bg-gradient-to-br from-lime-400 to-green-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🐾</div>
+                    <div class="font-extrabold text-base">Animals</div>
+                </button>
+                <button onclick="seleccionarTematica('food')" class="group bg-gradient-to-br from-yellow-400 to-orange-400 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🍕</div>
+                    <div class="font-extrabold text-base">Food</div>
+                </button>
+                <button onclick="seleccionarTematica('clothes')" class="group bg-gradient-to-br from-fuchsia-400 to-purple-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👗</div>
+                    <div class="font-extrabold text-base">Clothes</div>
+                </button>
+                <button onclick="seleccionarTematica('weather')" class="group bg-gradient-to-br from-sky-400 to-cyan-500 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🌦️</div>
+                    <div class="font-extrabold text-base">Weather</div>
+                </button>
+                <button onclick="seleccionarTematica('family')" class="group bg-gradient-to-br from-pink-400 to-rose-500 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👨‍👩‍👧</div>
+                    <div class="font-extrabold text-base">Family</div>
+                </button>
+                <button onclick="seleccionarTematica('feelings')" class="group bg-gradient-to-br from-violet-400 to-indigo-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🎵</div>
+                    <div class="font-extrabold text-base">Feelings</div>
                 </button>
             </div>
         </div>
@@ -244,9 +300,14 @@
                     <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Choose a scene</h3>
                     <p class="text-[11px] text-slate-400 mt-0.5">Pick a situation or let AI surprise you</p>
                 </div>
-                <button onclick="generarEscenarioSorpresaAI()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
-                    🎲 Random Scene
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="generarEscenarioSorpresaAI()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
+                        🎲 Random Scene
+                    </button>
+                    <button onclick="iniciarShadowing()" class="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
+                        🎭 Shadowing
+                    </button>
+                </div>
             </div>
             <div id="grid-escenarios-adultos" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
         </div>
@@ -262,7 +323,7 @@
                 <div class="flex items-end gap-3">
                     <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm">AI</div>
                     <div class="slide-left max-w-xs md:max-w-sm">
-                        <div id="chat-prompt" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm font-medium shadow-sm leading-relaxed"></div>
+                        <div id="chat-prompt" onclick="if(window._lastAIReply)hablarNativo(window._lastAIReply)" style="cursor:pointer" title="Tap to hear" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm font-medium shadow-sm leading-relaxed"></div>
                     </div>
                 </div>
                 <div id="user-transcript-wrapper" class="flex items-end justify-end gap-3 hidden">
@@ -275,7 +336,7 @@
                     <div class="flex items-end gap-3">
                         <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm">AI</div>
                         <div class="slide-left max-w-xs md:max-w-sm">
-                            <div id="ai-evaluation" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm shadow-sm leading-relaxed space-y-2"></div>
+                            <div id="ai-evaluation" onclick="if(window._lastAIReply)hablarNativo(window._lastAIReply)" style="cursor:pointer" title="Tap to hear" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm shadow-sm leading-relaxed space-y-2"></div>
                         </div>
                     </div>
                 </div>
@@ -299,6 +360,10 @@
 <!-- ═══ LOGIC ═══ -->
 <script type="text/javascript">
 
+function quitarEmojis(str) {
+    return str.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim();
+}
+
 const PROFILE_COLORS = {
     perfil1: 'from-pink-400 to-rose-500',
     perfil2: 'from-violet-400 to-purple-600',
@@ -312,6 +377,142 @@ const SCENARIO_STYLES = {
     restaurant: { icon:'🍽️', bg:'bg-rose-50 hover:bg-rose-100 border-rose-200',   active:'bg-rose-100 border-rose-500 text-rose-700 border-2' },
     taxi:       { icon:'🚕', bg:'bg-emerald-50 hover:bg-emerald-100 border-emerald-200', active:'bg-emerald-100 border-emerald-500 text-emerald-700 border-2' }
 };
+
+// ── New topics ───────────────────────────────────────────────────────────────
+Object.assign(MISIONES, {
+    animals: {
+        tier1: [
+            { pregunta:"Which one says meow? 🐾", audioText:"Which animal says meow?",
+              opciones:[{texto:"🐶 Dog",correcta:false},{texto:"🐱 Cat",correcta:true}] },
+            { pregunta:"This animal has a long neck 🦒", audioText:"Which animal has a very long neck?",
+              opciones:[{texto:"🐘 Elephant",correcta:false},{texto:"🦒 Giraffe",correcta:true}] },
+            { pregunta:"Which one can fly? ✈️", audioText:"Which animal can fly?",
+              opciones:[{texto:"🐟 Fish",correcta:false},{texto:"🦋 Butterfly",correcta:true}] },
+            { pregunta:"This animal lives in the sea 🌊", audioText:"Which animal lives in the sea?",
+              opciones:[{texto:"🐇 Rabbit",correcta:false},{texto:"🐬 Dolphin",correcta:true}] },
+        ],
+        tier2: [
+            { pregunta:"The biggest land animal is…", audioText:"What is the biggest land animal?",
+              opciones:[{texto:"🦁 Lion",correcta:false},{texto:"🐘 Elephant",correcta:true},{texto:"🐆 Cheetah",correcta:false}] },
+            { pregunta:"Which animal is known for being very fast? 💨", audioText:"Which animal is the fastest?",
+              opciones:[{texto:"🐢 Turtle",correcta:false},{texto:"🐆 Cheetah",correcta:true},{texto:"🐘 Elephant",correcta:false}] },
+            { pregunta:"Baby cat = …", audioText:"What is a baby cat called?",
+              opciones:[{texto:"Puppy 🐶",correcta:false},{texto:"Kitten 🐱",correcta:true},{texto:"Cub 🐻",correcta:false}] },
+            { pregunta:"Which animal sleeps all winter? ❄️", audioText:"Which animal sleeps all winter long?",
+              opciones:[{texto:"🐦 Bird",correcta:false},{texto:"🐻 Bear",correcta:true},{texto:"🐠 Fish",correcta:false}] },
+        ]
+    },
+    food: {
+        tier1: [
+            { pregunta:"Which one is a fruit? 🍎", audioText:"Which one is a fruit?",
+              opciones:[{texto:"🥕 Carrot",correcta:false},{texto:"🍓 Strawberry",correcta:true}] },
+            { pregunta:"You drink this in the morning ☕", audioText:"What do you drink in the morning?",
+              opciones:[{texto:"🍕 Pizza",correcta:false},{texto:"🥛 Milk",correcta:true}] },
+            { pregunta:"This is sweet and cold 🍦", audioText:"What is sweet and cold?",
+              opciones:[{texto:"🥦 Broccoli",correcta:false},{texto:"🍦 Ice cream",correcta:true}] },
+            { pregunta:"Which one is a vegetable? 🥗", audioText:"Which one is a vegetable?",
+              opciones:[{texto:"🍇 Grapes",correcta:false},{texto:"🥦 Broccoli",correcta:true}] },
+        ],
+        tier2: [
+            { pregunta:"You eat this for breakfast with milk 🥣", audioText:"What do you eat for breakfast with milk?",
+              opciones:[{texto:"🍕 Pizza",correcta:false},{texto:"🥣 Cereal",correcta:true},{texto:"🍔 Burger",correcta:false}] },
+            { pregunta:"This Italian food has tomato sauce 🍝", audioText:"What Italian food has tomato sauce and noodles?",
+              opciones:[{texto:"🍣 Sushi",correcta:false},{texto:"🍝 Pasta",correcta:true},{texto:"🌮 Taco",correcta:false}] },
+            { pregunta:"How do you ask for food politely? 🙏", audioText:"How do you ask for food politely?",
+              opciones:[{texto:"Give me food!",correcta:false},{texto:"Can I have some please? 🙏",correcta:true},{texto:"I want!",correcta:false}] },
+            { pregunta:"At a restaurant you tell the waiter…", audioText:"At a restaurant how do you order food?",
+              opciones:[{texto:"I'd like the pasta, please 🍝",correcta:true},{texto:"Give pasta now!",correcta:false},{texto:"Pasta! Pasta!",correcta:false}] },
+        ]
+    },
+    clothes: {
+        tier1: [
+            { pregunta:"It's cold ❄️ You wear a…", audioText:"It is very cold outside. What do you wear?",
+              opciones:[{texto:"👙 Swimsuit",correcta:false},{texto:"🧥 Jacket",correcta:true}] },
+            { pregunta:"You wear this on your feet 👟", audioText:"What do you wear on your feet?",
+              opciones:[{texto:"🧤 Gloves",correcta:false},{texto:"👟 Shoes",correcta:true}] },
+            { pregunta:"It's raining 🌧️ You need a…", audioText:"It is raining. What do you need?",
+              opciones:[{texto:"☂️ Umbrella",correcta:true},{texto:"🕶️ Sunglasses",correcta:false}] },
+            { pregunta:"You wear this on your head 🎩", audioText:"What do you wear on your head?",
+              opciones:[{texto:"🧣 Scarf",correcta:false},{texto:"🎩 Hat",correcta:true}] },
+        ],
+        tier2: [
+            { pregunta:"It's very hot ☀️ You should wear…", audioText:"It is very hot. What should you wear?",
+              opciones:[{texto:"🧥 Coat",correcta:false},{texto:"👕 T-shirt",correcta:true},{texto:"🧣 Scarf",correcta:false}] },
+            { pregunta:"You wear these in a pool 🏊", audioText:"What do you wear to go swimming?",
+              opciones:[{texto:"👔 Shirt",correcta:false},{texto:"👙 Swimsuit",correcta:true},{texto:"🧥 Jacket",correcta:false}] },
+            { pregunta:"At school you carry your books in a…", audioText:"What do you carry your books in at school?",
+              opciones:[{texto:"🎩 Hat",correcta:false},{texto:"🎒 Backpack",correcta:true},{texto:"👟 Shoe",correcta:false}] },
+            { pregunta:"Your hands are cold ❄️ You wear…", audioText:"Your hands are cold. What do you put on?",
+              opciones:[{texto:"🧢 Cap",correcta:false},{texto:"🧤 Gloves",correcta:true},{texto:"👗 Dress",correcta:false}] },
+        ]
+    },
+    weather: {
+        tier1: [
+            { pregunta:"☀️ The weather is…", audioText:"Look at the sun. What is the weather like?",
+              opciones:[{texto:"Rainy 🌧️",correcta:false},{texto:"Sunny ☀️",correcta:true}] },
+            { pregunta:"You need an umbrella. It is…", audioText:"You need an umbrella. What is the weather?",
+              opciones:[{texto:"Raining 🌧️",correcta:true},{texto:"Sunny ☀️",correcta:false}] },
+            { pregunta:"❄️ White stuff falls from the sky. It's…", audioText:"White fluffy stuff falls from the sky. What is it?",
+              opciones:[{texto:"Rain 🌧️",correcta:false},{texto:"Snow ❄️",correcta:true}] },
+            { pregunta:"💨 The trees are moving. It is…", audioText:"The trees are moving. What is the weather?",
+              opciones:[{texto:"Windy 💨",correcta:true},{texto:"Snowy ❄️",correcta:false}] },
+        ],
+        tier2: [
+            { pregunta:"How do you ask about the weather? 🌤️", audioText:"How do you ask someone about the weather?",
+              opciones:[{texto:"What is the weather like today? 🌤️",correcta:true},{texto:"Give me the weather!",correcta:false},{texto:"Weather, weather!",correcta:false}] },
+            { pregunta:"It is 30°C outside. You say…", audioText:"It is thirty degrees outside. How do you describe it?",
+              opciones:[{texto:"It's freezing! 🥶",correcta:false},{texto:"It's boiling hot! 🥵",correcta:true},{texto:"It's windy! 💨",correcta:false}] },
+            { pregunta:"A storm is coming ⛈️ You say…", audioText:"A storm is coming. What do you say?",
+              opciones:[{texto:"It's going to storm! ⛈️",correcta:true},{texto:"It's sunny today!",correcta:false},{texto:"Let's go swimming!",correcta:false}] },
+            { pregunta:"After rain comes…", audioText:"What often appears in the sky after rain?",
+              opciones:[{texto:"Snow ❄️",correcta:false},{texto:"Rainbow 🌈",correcta:true},{texto:"Wind 💨",correcta:false}] },
+        ]
+    },
+    family: {
+        tier1: [
+            { pregunta:"Your mum's mum is your…", audioText:"Your mum's mum. What do you call her?",
+              opciones:[{texto:"Aunt 👩",correcta:false},{texto:"Grandma 👵",correcta:true}] },
+            { pregunta:"Your dad's brother is your…", audioText:"Your dad's brother. What do you call him?",
+              opciones:[{texto:"Uncle 👨",correcta:true},{texto:"Cousin 🧒",correcta:false}] },
+            { pregunta:"You and your sister are…", audioText:"You and your sister. What are you?",
+              opciones:[{texto:"Friends 👫",correcta:false},{texto:"Siblings 👧👦",correcta:true}] },
+            { pregunta:"Baby brother or sister = …", audioText:"What do you call a baby brother or sister?",
+              opciones:[{texto:"Friend 👫",correcta:false},{texto:"Sibling 👶",correcta:true}] },
+        ],
+        tier2: [
+            { pregunta:"How do you introduce your family? 👨‍👩‍👧", audioText:"How do you introduce your family?",
+              opciones:[{texto:"This is my family! 👨‍👩‍👧",correcta:true},{texto:"Hello family!",correcta:false},{texto:"Give me family!",correcta:false}] },
+            { pregunta:"Your mum's sister is your…", audioText:"Your mum's sister. What do you call her?",
+              opciones:[{texto:"Grandma 👵",correcta:false},{texto:"Aunt 👩",correcta:true},{texto:"Cousin 🧒",correcta:false}] },
+            { pregunta:"My dad's dad = My …", audioText:"Your dad's dad. What do you call him?",
+              opciones:[{texto:"Uncle 👨",correcta:false},{texto:"Grandpa 👴",correcta:true},{texto:"Brother 👦",correcta:false}] },
+            { pregunta:"How many people are in YOUR family? 🤔", audioText:"Think about your family. How do you say the number in English?",
+              opciones:[{texto:"I don't know",correcta:false},{texto:"There are ___ people in my family 👨‍👩‍👧",correcta:true},{texto:"Family is big",correcta:false}] },
+        ]
+    },
+    feelings: {
+        tier1: [
+            { pregunta:"😊 This face is…", audioText:"Look at this face. How does it feel?",
+              opciones:[{texto:"Sad 😢",correcta:false},{texto:"Happy 😊",correcta:true}] },
+            { pregunta:"😢 This face is…", audioText:"Look at this face. How does it feel?",
+              opciones:[{texto:"Happy 😊",correcta:false},{texto:"Sad 😢",correcta:true}] },
+            { pregunta:"😴 You feel this at night…", audioText:"You feel this when you want to sleep. What is it?",
+              opciones:[{texto:"Hungry 🍽️",correcta:false},{texto:"Sleepy 😴",correcta:true}] },
+            { pregunta:"😠 This face is…", audioText:"Look at this face. How does it feel?",
+              opciones:[{texto:"Angry 😠",correcta:true},{texto:"Happy 😊",correcta:false}] },
+        ],
+        tier2: [
+            { pregunta:"How do you say you are happy in English? 😊", audioText:"How do you say you are happy?",
+              opciones:[{texto:"I am happy! 😊",correcta:true},{texto:"I am sad!",correcta:false},{texto:"I am angry!",correcta:false}] },
+            { pregunta:"You got a surprise gift 🎁 You feel…", audioText:"You got a surprise gift. How do you feel?",
+              opciones:[{texto:"Bored 😑",correcta:false},{texto:"Excited! 🎉",correcta:true},{texto:"Angry 😠",correcta:false}] },
+            { pregunta:"Your favourite song plays 🎵 You feel…", audioText:"Your favourite song plays. How do you feel?",
+              opciones:[{texto:"Scared 😨",correcta:false},{texto:"Happy and excited! 🎵",correcta:true},{texto:"Sleepy 😴",correcta:false}] },
+            { pregunta:"A friend is sad 😢 You say…", audioText:"Your friend is sad. What do you say?",
+              opciones:[{texto:"Are you okay? 🤗",correcta:true},{texto:"Goodbye!",correcta:false},{texto:"I am happy!",correcta:false}] },
+        ]
+    }
+});
 
 // ── Sentence Builder bank ────────────────────────────────────────────────────
 const SENTENCE_BANK = [
@@ -709,6 +910,11 @@ window.seleccionarTematica = function(idTema) {
     document.getElementById('btn-audio-infantil').onclick = () => hablarNativo(tema.audioText);
     document.getElementById('feedback-nena').classList.add('hidden');
 
+    const qEl = document.getElementById('mision-pregunta-texto');
+    qEl.innerText  = tema.pregunta;
+    qEl.style.cursor = 'pointer';
+    qEl.onclick    = () => hablarNativo(tema.audioText);
+
     const contenedor = document.getElementById('contenedor-respuestas');
     contenedor.innerHTML = '';
     const cols    = tema.opciones.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
@@ -717,9 +923,9 @@ window.seleccionarTematica = function(idTema) {
     tema.opciones.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'bg-white hover:scale-105 active:scale-95 p-5 rounded-3xl font-extrabold text-base shadow-md border-2 border-transparent hover:border-blue-200 transition-all text-slate-800';
-        btn.innerText = opt.texto;
+        btn.innerText = quitarEmojis(opt.texto);
         btn.onclick   = () => {
-            hablarNativo(opt.texto.replace(/[^\w\s]/gi,''));
+            hablarNativo(quitarEmojis(opt.texto));
             setTimeout(() => evaluarRespuestaInfantil(opt.correcta, idTema, btn), 600);
         };
         wrapper.appendChild(btn);
@@ -745,6 +951,7 @@ window.cargarEscenarioFijoAdulto = function(idEsc) {
     if (active) active.className = `p-3 rounded-xl font-bold text-xs transition-all text-center ${s.active}`;
 
     window.escenarioAdultoActivo = { titulo:esc.titulo, prompt:esc.prompt, systemInfo:esc.systemInfo };
+    window._lastAIReply = esc.prompt;
     document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
     document.getElementById('escenario-titulo').innerText = `${s.icon||''} ${esc.titulo}`;
     document.getElementById('chat-prompt').innerText = `"${esc.prompt}"`;
@@ -957,6 +1164,181 @@ renderizarSelectorEscenariosAdultos();
 window.cambiarPerfil('perfil1');
 </script>
 
+<!-- ═══ SHADOWING LOGIC ═══ -->
+<script type="text/javascript">
+let shadowState = { lines: [], currentLine: 0, scores: [], recognition: null, listening: false };
+
+window.iniciarShadowing = async function() {
+    const p = window.familia[window.perfilActualId];
+    document.getElementById('shadow-overlay').classList.remove('hidden');
+    document.getElementById('shadow-lines').innerHTML = "<p class='text-slate-400 text-sm text-center animate-pulse py-8'>Generating conversation…</p>";
+    document.getElementById('shadow-mic-area').classList.add('hidden');
+    document.getElementById('shadow-result-area').classList.add('hidden');
+    try {
+        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ action:'generate_shadowing', level: p.nivel })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        shadowState = { lines: data.lines, currentLine: 0, scores: [], recognition: null, listening: false };
+        document.getElementById('shadow-context').innerText = data.title;
+        renderShadowLines();
+        setTimeout(() => playNextShadowLine(), 500);
+    } catch(e) {
+        document.getElementById('shadow-lines').innerHTML = `<p class='text-red-400 text-sm text-center py-8'>${e.message}</p>`;
+    }
+};
+
+function renderShadowLines() {
+    const container = document.getElementById('shadow-lines');
+    container.innerHTML = '';
+    shadowState.lines.forEach((line, i) => {
+        const isStaff = line.role === 'staff';
+        const div = document.createElement('div');
+        div.id = `shadow-line-${i}`;
+        div.className = `flex ${isStaff ? 'justify-start' : 'justify-end'} opacity-30 transition-all duration-500`;
+        div.innerHTML = `
+            <div class="max-w-xs space-y-1">
+                <p class="text-[10px] font-bold uppercase tracking-wide ${isStaff ? 'text-blue-400' : 'text-emerald-400'} ${isStaff ? '' : 'text-right'}">${isStaff ? '💼 Staff' : '🧳 You'}</p>
+                <div class="${isStaff ? 'bg-slate-700 text-white' : 'bg-emerald-900/60 text-emerald-100'} rounded-2xl px-4 py-3 text-sm font-medium" id="shadow-text-${i}">
+                    ${i === 0 ? line.text : '…'}
+                </div>
+                <p class="text-slate-500 text-xs italic px-1 hidden" id="shadow-trans-${i}">${line.translation}</p>
+                <p class="text-xs font-bold hidden" id="shadow-score-${i}"></p>
+            </div>`;
+        container.appendChild(div);
+    });
+}
+
+function activateShadowLine(i) {
+    const el = document.getElementById(`shadow-line-${i}`);
+    if (el) { el.classList.remove('opacity-30'); el.classList.add('opacity-100'); }
+    const textEl = document.getElementById(`shadow-text-${i}`);
+    if (textEl) textEl.innerText = shadowState.lines[i].text;
+    const transEl = document.getElementById(`shadow-trans-${i}`);
+    if (transEl) transEl.classList.remove('hidden');
+    document.getElementById('shadow-lines').scrollTop = document.getElementById('shadow-lines').scrollHeight;
+}
+
+async function playNextShadowLine() {
+    const i = shadowState.currentLine;
+    if (i >= shadowState.lines.length) { mostrarResultadoShadowing(); return; }
+    const line = shadowState.lines[i];
+    activateShadowLine(i);
+
+    if (line.role === 'staff') {
+        hablarNativo(line.text);
+        setTimeout(() => {
+            shadowState.currentLine++;
+            playNextShadowLine();
+        }, line.text.length * 60 + 1500);
+    } else {
+        document.getElementById('shadow-expected').innerText = line.text;
+        document.getElementById('shadow-mic-area').classList.remove('hidden');
+        document.getElementById('shadow-mic-status').innerText = '';
+        document.getElementById('shadow-lines').scrollTop = document.getElementById('shadow-lines').scrollHeight;
+    }
+}
+
+window.shadowListenExpected = function() {
+    hablarNativo(shadowState.lines[shadowState.currentLine].text);
+};
+
+window.shadowToggleMic = function() {
+    if (shadowState.listening) return;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { alert('Use Google Chrome for microphone support.'); return; }
+    const rec = new SR();
+    rec.lang = 'en-US';
+    rec.interimResults = false;
+    shadowState.recognition = rec;
+    shadowState.listening = true;
+    const btn = document.getElementById('shadow-mic-btn');
+    btn.innerHTML = '🔴 Listening…';
+    btn.disabled = true;
+    document.getElementById('shadow-mic-status').innerText = 'Speak now…';
+
+    rec.onresult = async e => {
+        const said = e.results[0][0].transcript;
+        shadowState.listening = false;
+        btn.innerHTML = '⏳ Evaluating…';
+        await evaluarLineaShadowing(said);
+    };
+    rec.onerror = rec.onend = () => {
+        if (shadowState.listening) {
+            shadowState.listening = false;
+            btn.innerHTML = '🎙️ Speak';
+            btn.disabled = false;
+        }
+    };
+    rec.start();
+};
+
+async function evaluarLineaShadowing(said) {
+    const i = shadowState.currentLine;
+    const expected = shadowState.lines[i].text;
+    const p = window.familia[window.perfilActualId];
+    try {
+        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ action:'evaluate_shadowing', textInput: said, expected, level: p.nivel })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        shadowState.scores.push(data.score);
+
+        const scoreEl = document.getElementById(`shadow-score-${i}`);
+        const color = data.score >= 80 ? 'text-emerald-400' : data.score >= 50 ? 'text-amber-400' : 'text-rose-400';
+        if (scoreEl) {
+            scoreEl.className = `text-xs font-bold ${color}`;
+            scoreEl.innerText = `${data.score >= 80 ? '✅' : data.score >= 50 ? '⚠️' : '🔄'} ${data.score}/100 — ${data.feedback}`;
+            scoreEl.classList.remove('hidden');
+        }
+        if (data.tip) hablarNativo(data.tip);
+
+        document.getElementById('shadow-mic-area').classList.add('hidden');
+        const btn = document.getElementById('shadow-mic-btn');
+        btn.innerHTML = '🎙️ Speak';
+        btn.disabled = false;
+
+        shadowState.currentLine++;
+        setTimeout(() => playNextShadowLine(), 1200);
+    } catch(e) {
+        document.getElementById('shadow-mic-status').innerText = 'Error — try again';
+        const btn = document.getElementById('shadow-mic-btn');
+        btn.innerHTML = '🎙️ Speak';
+        btn.disabled = false;
+        shadowState.listening = false;
+    }
+}
+
+function mostrarResultadoShadowing() {
+    document.getElementById('shadow-mic-area').classList.add('hidden');
+    const avg = shadowState.scores.length
+        ? Math.round(shadowState.scores.reduce((a,b) => a+b, 0) / shadowState.scores.length)
+        : 0;
+    const trophy = avg >= 80 ? '🏆' : avg >= 50 ? '🥈' : '💪';
+    const msg    = avg >= 80 ? '¡Excelente pronunciación!' : avg >= 50 ? '¡Muy bien! Seguí practicando.' : '¡Buen intento! La práctica hace al maestro.';
+    document.getElementById('shadow-trophy').innerText = trophy;
+    document.getElementById('shadow-final-score').innerText = `Score: ${avg}/100`;
+    document.getElementById('shadow-final-msg').innerText = msg;
+    document.getElementById('shadow-result-area').classList.remove('hidden');
+
+    const p = window.familia[window.perfilActualId];
+    p.score += Math.round(avg / 2);
+    guardarEstado();
+    actualizarLeaderboardUI();
+    hablarNativo(avg >= 80 ? 'Excellent! Perfect shadowing!' : 'Good job! Keep practicing!');
+}
+
+window.cerrarShadowing = function() {
+    if (shadowState.recognition) { try { shadowState.recognition.stop(); } catch(e) {} }
+    shadowState.listening = false;
+    document.getElementById('shadow-overlay').classList.add('hidden');
+};
+</script>
+
 <!-- ═══ VERCEL CONNECTION ═══ -->
 <script type="text/javascript">
 window.generarEscenarioSorpresaAI = async function() {
@@ -972,6 +1354,7 @@ window.generarEscenarioSorpresaAI = async function() {
         const data = await res.json();
         if (data.error) throw new Error(data.error);
         window.escenarioAdultoActivo = { titulo: data.setup_title, prompt: data.ai_opening, systemInfo:'International travel roleplay scenario' };
+        window._lastAIReply = data.ai_opening;
         document.getElementById('escenario-titulo').innerText = `🎲 ${data.setup_title}`;
         document.getElementById('chat-prompt').innerHTML = `
             <span class="cursor-pointer select-none" onclick="this.nextElementSibling.classList.toggle('hidden')" title="Tap to translate">
@@ -1018,6 +1401,7 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
                 <p class="text-emerald-600 text-xs font-bold px-1">🎉 +${data.xp} XP earned!</p>
             </div>`;
         window.escenarioAdultoActivo.prompt = data.reply;
+        window._lastAIReply = data.reply;
         document.getElementById('chat-prompt').innerHTML = `
             <span class="cursor-pointer select-none" onclick="this.nextElementSibling.classList.toggle('hidden')" title="Tap to translate">
                 "${data.reply}" <span class="text-blue-300 text-[10px]">🌐</span>
