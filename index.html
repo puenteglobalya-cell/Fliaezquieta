@@ -3,567 +3,695 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sinergia Familiar - Language Hub GEMINI PRO</title>
+    <title>Sinergia Familiar - Language Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    boxShadow: {
-                        'soft': '0 2px 12px -3px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.03)',
-                        'premium': '0 20px 40px -15px rgba(0, 0, 0, 0.06)',
-                        'interface': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                    }
-                }
-            }
+
+        @keyframes mic-wave {
+            0%   { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(2.4); opacity: 0; }
         }
-    </script>
+        .mic-wave   { animation: mic-wave 1.5s ease-out infinite; }
+        .mic-wave-2 { animation: mic-wave 1.5s ease-out infinite 0.7s; }
+
+        @keyframes float-star {
+            0%   { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-70px) scale(0.4); opacity: 0; }
+        }
+        .float-star { animation: float-star 1s ease-out forwards; }
+
+        @keyframes correct-ring {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+            50%       { box-shadow: 0 0 0 14px rgba(16,185,129,0.18); }
+        }
+        .correct-ring { animation: correct-ring 0.55s ease-out; }
+
+        @keyframes slide-left {
+            from { transform: translateX(-10px); opacity: 0; }
+            to   { transform: translateX(0);     opacity: 1; }
+        }
+        @keyframes slide-right {
+            from { transform: translateX(10px); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
+        }
+        .slide-left  { animation: slide-left  0.22s ease-out; }
+        .slide-right { animation: slide-right 0.22s ease-out; }
+    </style>
 </head>
-<body class="bg-[#f8fafc] text-slate-900 min-h-screen flex flex-col antialiased">
+<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col antialiased">
 
-    <!-- TOP PROFILE SELECTOR -->
-    <div class="bg-slate-900 text-slate-400 border-b border-slate-800 px-4 py-3 flex flex-wrap justify-between items-center text-xs gap-3">
-        <div class="flex items-center gap-2 font-medium text-slate-300">
-            <span class="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
-            <span>PERFIL ACTIVO:</span>
-            <div id="profile-buttons-container" class="flex gap-1.5 ml-2"></div>
+<!-- ══════════════════════════════════ TOP BAR ══════════════════════════════════ -->
+<div class="bg-slate-900 px-4 py-3 flex flex-wrap justify-between items-center gap-3 shadow-lg">
+    <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">Active</span>
         </div>
-        <div>
-            <button onclick="toggleConfigPanel()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-3 py-1.5 rounded-lg border border-slate-700 transition-colors">
-                ⚙️ Configuración Admin
-            </button>
-        </div>
+        <div id="profile-buttons-container" class="flex gap-2 flex-wrap"></div>
     </div>
+    <button onclick="toggleConfigPanel()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-3 py-1.5 rounded-lg border border-slate-700 transition-colors text-xs flex items-center gap-1.5">
+        ⚙️ <span class="hidden sm:inline">Settings</span>
+    </button>
+</div>
 
-    <!-- CONFIGURATION PANEL -->
-    <div id="config-panel" class="bg-white border-b border-slate-200 p-6 shadow-soft hidden">
-        <div class="max-w-5xl mx-auto space-y-6">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Panel de Inmersión Gemini (Servidor Protegido)</h3>
-                <button onclick="toggleConfigPanel()" class="text-slate-400 hover:text-slate-600 text-sm">✕ Cerrar</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="block text-xs font-bold text-slate-500 uppercase">Voz del Sistema Inglés</label>
-                    <select id="voice-selector" onchange="cambiarVozSistema()" class="w-full bg-slate-50 border border-slate-200 text-xs p-2.5 rounded-lg text-slate-700 focus:outline-none"></select>
-                </div>
-                <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200/60 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-slate-700 uppercase">Seguridad del Motor</p>
-                        <p class="text-[11px] text-slate-400 mt-0.5">La API Key de Google AI Studio está blindada en las variables de entorno de tu servidor Vercel.</p>
-                    </div>
-                    <span class="text-emerald-500 font-bold text-xs bg-emerald-50 px-2 py-1 rounded border border-emerald-200">🛡️ Activa</span>
-                </div>
-            </div>
-            <div class="space-y-3 pt-2">
-                <label class="block text-xs font-bold text-slate-500 uppercase">Gestión del Hándicap Familiar</label>
-                <div id="profiles-config-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
-            </div>
+<!-- ══════════════════════════════════ CONFIG PANEL ══════════════════════════════════ -->
+<div id="config-panel" class="bg-white border-b border-slate-200 p-6 shadow-xl hidden">
+    <div class="max-w-5xl mx-auto space-y-6">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">⚙️ Profile Settings</h3>
+            <button onclick="toggleConfigPanel()" class="text-slate-400 hover:text-slate-600 text-sm font-medium">✕ Close</button>
         </div>
-    </div>
-
-    <!-- INTERFAZ INFANTIL -->
-    <div id="vista-infantil" class="flex-1 flex flex-col justify-between p-4 md:p-8 hidden bg-gradient-to-b from-blue-50/40 via-white to-white">
-        <header class="max-w-4xl mx-auto w-full flex justify-between items-center bg-white p-4 rounded-2xl shadow-soft border border-slate-100">
-            <div class="flex items-center gap-3">
-                <div class="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-xl shadow-sm text-white">✨</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide">English Voice</label>
+                <select id="voice-selector" onchange="cambiarVozSistema()" class="w-full bg-slate-50 border border-slate-200 text-xs p-2.5 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-200"></select>
+            </div>
+            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center justify-between">
                 <div>
-                    <span id="txt-quest-label" class="text-[11px] font-bold uppercase tracking-wider text-blue-600">Misión de Aprendizaje</span>
-                    <h1 id="saludo-nena" class="text-xl font-bold text-slate-800 tracking-tight">¡Hola!</h1>
+                    <p class="text-xs font-bold text-emerald-800 uppercase tracking-wide">AI Engine</p>
+                    <p class="text-[11px] text-emerald-600 mt-0.5">API Key secured in Vercel environment.</p>
+                </div>
+                <span class="text-emerald-600 font-bold text-lg">🛡️</span>
+            </div>
+        </div>
+        <div class="space-y-3">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide">Level per Profile</label>
+            <div id="profiles-config-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════ KIDS INTERFACE ══════════════════════════════════ -->
+<div id="vista-infantil" class="flex-1 flex flex-col p-4 md:p-6 hidden"
+     style="background: linear-gradient(135deg, #e0f2fe 0%, #fef9c3 50%, #fce7f3 100%);">
+
+    <!-- Kids Header -->
+    <header class="max-w-lg mx-auto w-full mb-5">
+        <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-4 shadow-lg border border-white flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-2xl shadow-md">⭐</div>
+                <div>
+                    <h1 id="saludo-nena" class="text-lg font-extrabold text-slate-800">Hello!</h1>
+                    <p id="nivel-nena-tag" class="text-xs text-slate-400 font-semibold">Level: Starter</p>
                 </div>
             </div>
             <div class="flex gap-5 items-center">
-                <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase text-right">Racha</p>
-                    <p class="text-sm font-extrabold text-orange-600">🔥 <span id="racha-nena">5</span> días</p>
+                <div class="text-center">
+                    <p class="text-[10px] font-bold text-orange-400 uppercase">Streak</p>
+                    <p class="text-base font-extrabold text-orange-600">🔥 <span id="racha-nena">0</span></p>
                 </div>
                 <div class="h-8 w-px bg-slate-200"></div>
+                <div class="text-center">
+                    <p class="text-[10px] font-bold text-blue-400 uppercase">Score</p>
+                    <p id="puntos-nena" class="text-base font-extrabold text-blue-600">0 XP</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-lg mx-auto w-full">
+
+        <!-- Topic Selector -->
+        <div id="panel-tematicas" class="space-y-5">
+            <div class="text-center">
+                <h2 class="text-2xl font-extrabold text-slate-800">Choose your adventure! 🚀</h2>
+                <p class="text-slate-500 text-sm mt-1">Tap a topic to start</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="seleccionarTematica('greetings')"
+                    class="group bg-gradient-to-br from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
+                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">👋</div>
+                    <div class="font-extrabold text-lg">Greetings</div>
+                </button>
+                <button onclick="seleccionarTematica('numbers')"
+                    class="group bg-gradient-to-br from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
+                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">🔢</div>
+                    <div class="font-extrabold text-lg">Numbers</div>
+                </button>
+                <button onclick="seleccionarTematica('colors')"
+                    class="group bg-gradient-to-br from-rose-400 to-pink-600 hover:from-rose-500 hover:to-pink-700 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
+                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">🎨</div>
+                    <div class="font-extrabold text-lg">Colours</div>
+                </button>
+                <button onclick="seleccionarTematica('travel')"
+                    class="group bg-gradient-to-br from-emerald-400 to-teal-600 hover:from-emerald-500 hover:to-teal-700 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
+                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">✈️</div>
+                    <div class="font-extrabold text-lg">Travel</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mission Card -->
+        <div id="zona-mision" class="hidden">
+            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/60 space-y-4 relative">
+                <button onclick="volverATematicas()"
+                    class="absolute top-4 right-4 h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition-colors">✕</button>
+                <div class="text-center">
+                    <span id="mision-categoria-titulo" class="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wider">Category</span>
+                </div>
+                <div class="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-5 text-center border border-slate-100">
+                    <h2 id="mision-pregunta-texto" class="text-xl font-extrabold text-slate-800 leading-snug">Question</h2>
+                </div>
+                <button id="btn-audio-infantil"
+                    class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 text-sm active:scale-98 shadow-md">
+                    🔊 Listen again
+                </button>
+                <div id="contenedor-respuestas"></div>
+                <!-- Stars pop here -->
+                <div id="stars-container" class="relative h-0 overflow-visible pointer-events-none"></div>
+                <div id="feedback-nena" class="hidden p-4 rounded-2xl text-center text-base font-bold border-2"></div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ══════════════════════════════════ ADULTS INTERFACE ══════════════════════════════════ -->
+<div id="vista-adultos" class="flex-1 flex flex-col p-4 md:p-6 hidden bg-gradient-to-br from-slate-100 to-indigo-50/60">
+
+    <!-- Adults Header -->
+    <header class="max-w-4xl mx-auto w-full mb-5">
+        <div class="bg-white rounded-2xl p-5 shadow-md border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="space-y-1.5">
+                <div class="flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Conversational English · Gemini AI</span>
+                </div>
+                <h1 id="subtitulo-adulto" class="text-xl font-extrabold text-slate-900">Active Explorer</h1>
+            </div>
+            <div class="bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200 p-4 rounded-xl w-full md:w-72 shadow-sm">
+                <p class="font-extrabold text-slate-500 mb-3 flex items-center gap-1.5 uppercase tracking-widest text-[10px]">🏆 Family Leaderboard</p>
+                <ol id="leaderboard-list" class="space-y-2 text-xs"></ol>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto w-full space-y-5 flex-1">
+
+        <!-- Scenario Selector -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-md space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                 <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase text-right">Puntaje Total</p>
-                    <p id="puntos-nena" class="text-sm font-extrabold text-blue-600">0 XP</p>
+                    <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Choose a scene</h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Pick a situation or let AI surprise you</p>
                 </div>
+                <button onclick="generarEscenarioSorpresaAI()"
+                    class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
+                    🎲 Random Scene
+                </button>
             </div>
-        </header>
+            <div id="grid-escenarios-adultos" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+        </div>
 
-        <main class="my-auto max-w-2xl mx-auto w-full py-6">
-            <div id="panel-tematicas" class="space-y-6">
-                <div class="text-center space-y-1">
-                    <h2 class="text-2xl font-bold text-slate-800 tracking-tight">¡Elegí tu aventura!</h2>
-                    <p class="text-slate-500 text-sm">Suma puntos para la liga semanal superando los desafíos</p>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="seleccionarTematica('animals')" class="bg-white hover:bg-amber-50/50 p-5 rounded-2xl border border-slate-200/60 shadow-soft text-center space-y-2 transition-all">
-                        <div class="text-3xl">🦁</div>
-                        <div class="font-bold text-slate-800 text-sm">Animals</div>
-                    </button>
-                    <button onclick="seleccionarTematica('food')" class="bg-white hover:bg-emerald-50/50 p-5 rounded-2xl border border-slate-200/60 shadow-soft text-center space-y-2 transition-all">
-                        <div class="text-3xl">🍎</div>
-                        <div class="font-bold text-slate-800 text-sm">Food & Fruits</div>
-                    </button>
-                    <button onclick="seleccionarTematica('greetings')" class="bg-white hover:bg-indigo-50/50 p-5 rounded-2xl border border-slate-200/60 shadow-soft text-center space-y-2 transition-all">
-                        <div class="text-3xl">👋</div>
-                        <div class="font-bold text-slate-800 text-sm">Greetings</div>
-                    </button>
-                    <button onclick="seleccionarTematica('games')" class="bg-white hover:bg-rose-50/50 p-5 rounded-2xl border border-slate-200/60 shadow-soft text-center space-y-2 transition-all">
-                        <div class="text-3xl">🎮</div>
-                        <div class="font-bold text-slate-800 text-sm">Games & Toys</div>
-                    </button>
-                </div>
+        <!-- Conversation Zone -->
+        <div id="zona-conversacion-adulto" class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden hidden">
+
+            <!-- Title bar -->
+            <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-3 flex justify-between items-center">
+                <h2 id="escenario-titulo" class="text-sm font-bold text-white tracking-wide">Scene</h2>
+                <button onclick="escucharEscenarioActual()"
+                    class="text-[11px] bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+                    🔊 Listen
+                </button>
             </div>
 
-            <div id="zona-mision" class="bg-white rounded-3xl p-6 md:p-8 shadow-premium border border-slate-100 hidden relative">
-                <button onclick="volverATematicas()" class="absolute top-4 right-4 text-xs text-slate-400 hover:text-slate-600">✕ Cambiar Tema</button>
-                <div class="space-y-6">
-                    <div class="text-center space-y-1">
-                        <h3 id="mision-categoria-titulo" class="text-xs font-bold text-blue-600 uppercase tracking-wider">Categoría</h3>
-                        <h2 id="mision-pregunta-texto" class="text-xl font-bold text-slate-800">Pregunta de la Misión</h2>
+            <!-- Chat bubbles -->
+            <div class="p-5 space-y-4 bg-slate-50/60 min-h-[180px]">
+
+                <!-- AI bubble -->
+                <div class="flex items-end gap-3">
+                    <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm">AI</div>
+                    <div class="slide-left max-w-xs md:max-w-sm">
+                        <div id="chat-prompt" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm font-medium shadow-sm leading-relaxed"></div>
                     </div>
-                    <button id="btn-audio-infantil" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-4 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 text-base shadow-interface">
-                        <span>🔊</span> Escuchar Instrucción
-                    </button>
-                    <div id="contenedor-respuestas" class="pt-2"></div>
-                    <div id="feedback-nena" class="hidden p-4 rounded-xl text-center text-sm font-semibold border"></div>
                 </div>
-            </div>
-        </main>
-    </div>
 
-    <!-- INTERFAZ ADULTOS -->
-    <div id="vista-adultos" class="flex-1 flex flex-col justify-between p-4 md:p-8 hidden bg-[#f8fafc]">
-        <header class="max-w-5xl mx-auto w-full flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 rounded-2xl shadow-soft border border-slate-100 gap-4">
-            <div class="space-y-1">
-                <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-md border border-blue-100 uppercase tracking-wider">Inmersión Conversacional Gemini Flash via Vercel</span>
-                <h1 id="subtitulo-adulto" class="text-xl font-bold text-slate-900 tracking-tight">Active Explorer</h1>
-            </div>
-            <div class="bg-slate-50 border border-slate-200/60 p-4 rounded-xl text-xs w-full md:w-64 shadow-sm">
-                <p class="font-bold text-slate-500 mb-2.5 flex items-center gap-1.5 uppercase tracking-wider text-[10px]">🏆 Tabla de Posiciones Familiar</p>
-                <ol id="leaderboard-list" class="space-y-2 font-medium text-slate-600"></ol>
-            </div>
-        </header>
-
-        <main class="max-w-4xl mx-auto w-full py-6 space-y-6">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-soft space-y-5">
-                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-100 pb-3">
-                    <div>
-                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">1. Seleccionar Escenario Base</h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Elegí una situación o dejá que Gemini compile una simulación de rol oculta de alta velocidad</p>
+                <!-- User bubble -->
+                <div id="user-transcript-wrapper" class="flex items-end justify-end gap-3 hidden">
+                    <div class="slide-right max-w-xs md:max-w-sm">
+                        <div id="user-transcript" class="bg-emerald-500 text-white rounded-2xl rounded-br-sm px-4 py-3 text-sm font-medium shadow-sm leading-relaxed"></div>
                     </div>
-                    <button onclick="generarEscenarioSorpresaAI()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
-                        🎲 Gemini Surprise Topic
-                    </button>
+                    <div class="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm" id="user-avatar-initials">YO</div>
                 </div>
-                <div id="grid-escenarios-adultos" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+
+                <!-- AI reply + feedback -->
+                <div id="ai-evaluation-wrapper" class="hidden space-y-2">
+                    <div class="flex items-end gap-3">
+                        <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm">AI</div>
+                        <div class="slide-left max-w-xs md:max-w-sm">
+                            <div id="ai-evaluation" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm shadow-sm leading-relaxed space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- CONSOLA DE ENTRADA DE VOZ REAL -->
-            <div id="zona-conversacion-adulto" class="bg-white rounded-3xl p-6 md:p-8 shadow-premium border border-slate-100 space-y-6 hidden">
-                <div class="flex justify-between items-center border-b border-slate-100 pb-4">
-                    <h2 id="escenario-titulo" class="text-base font-bold text-slate-800 tracking-tight">Contexto de la Conversación</h2>
-                    <button onclick="escucharEscenarioActual()" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold px-3 py-1.5 rounded-lg border border-blue-100 flex items-center gap-1.5">
-                        🔊 Escuchar Personaje
-                    </button>
-                </div>
-                
-                <div class="bg-slate-50 rounded-2xl p-5 min-h-[160px] border border-slate-200/60 text-sm space-y-4 font-medium leading-relaxed text-slate-700">
-                    <div id="chat-prompt" class="text-blue-600 font-semibold"></div>
-                    <div id="user-transcript" class="text-emerald-600 pl-3 border-l-2 border-emerald-500/40 hidden italic"></div>
-                    <div id="ai-evaluation" class="text-slate-600 border-t border-slate-200 pt-4 text-xs hidden space-y-2"></div>
-                </div>
-
-                <!-- CONTROLADOR DEL MICRÓFONO FISICO -->
-                <div class="flex flex-col items-center justify-center py-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 gap-3">
-                    <button id="btn-mic-adulto" onclick="alternarMic()" class="h-16 w-16 bg-blue-600 hover:bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all text-2xl relative">
+            <!-- Mic area -->
+            <div class="px-5 py-7 bg-white border-t border-slate-100 flex flex-col items-center gap-4">
+                <div class="relative flex items-center justify-center h-24 w-24">
+                    <div id="wave-ring-1" class="absolute inset-0 rounded-full bg-red-400/20 hidden mic-wave"></div>
+                    <div id="wave-ring-2" class="absolute inset-0 rounded-full bg-red-400/15 hidden mic-wave-2"></div>
+                    <button id="btn-mic-adulto" onclick="alternarMic()"
+                        class="relative h-20 w-20 bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all text-3xl z-10">
                         <span id="mic-icon">🎙️</span>
-                        <span id="pulse-ring" class="absolute inset-0 rounded-full bg-red-500/30 animate-ping hidden"></span>
+                        <span id="pulse-ring" class="absolute inset-0 rounded-full bg-red-400/30 animate-ping hidden"></span>
                     </button>
-                    <p id="mic-status-text" class="text-xs text-slate-500 font-bold uppercase tracking-wider">Hacé clic para hablar (Voz Real a Gemini)</p>
                 </div>
+                <p id="mic-status-text" class="text-xs text-slate-400 font-bold uppercase tracking-widest">Tap to speak in English</p>
             </div>
-        </main>
-    </div>
 
-    <!-- PROGRAMACIÓN PRINCIPAL -->
-    <script type="text/javascript">
-        window.familia = JSON.parse(localStorage.getItem('sinergia_familia')) || {
-            perfil1: { id: 'perfil1', nombre: 'Emilia 6a', tipo: 'infantil', subtipo: 'hija_6', nivel: 'Initial', score: 120, racha: 5, misionIndex: 0 },
-            perfil2: { id: 'perfil2', nombre: 'Juliana 8a', tipo: 'infantil', subtipo: 'hija_8', nivel: 'Initial', score: 180, racha: 6, misionIndex: 0 },
-            perfil3: { id: 'perfil3', nombre: 'María Elena', tipo: 'adulto', subtipo: 'esposa', nivel: 'Intermediate', score: 210 },
-            perfil4: { id: 'perfil4', nombre: 'Maxi', tipo: 'adulto', subtipo: 'papa', nivel: 'Upper-Intermediate', score: 250 }
-        };
+        </div>
+    </main>
+</div>
 
-        window.perfilActualId = 'perfil1';
-        window.voiceIndexSeleccionada = 0;
-        window.escenarioAdultoActivo = { titulo: "", prompt: "", systemInfo: "" };
+<!-- ══════════════════════════════════ LOGIC ══════════════════════════════════ -->
+<script type="text/javascript">
+
+    const PROFILE_COLORS = {
+        perfil1: 'from-pink-400 to-rose-500',
+        perfil2: 'from-violet-400 to-purple-600',
+        perfil3: 'from-teal-400 to-cyan-600',
+        perfil4: 'from-blue-500 to-indigo-600'
+    };
+
+    const SCENARIO_STYLES = {
+        airport:    { icon: '✈️', bg: 'bg-sky-50 hover:bg-sky-100 border-sky-200',        active: 'bg-sky-100 border-sky-500 text-sky-700 border-2' },
+        hotel:      { icon: '🏨', bg: 'bg-amber-50 hover:bg-amber-100 border-amber-200',   active: 'bg-amber-100 border-amber-500 text-amber-700 border-2' },
+        restaurant: { icon: '🍽️', bg: 'bg-rose-50 hover:bg-rose-100 border-rose-200',     active: 'bg-rose-100 border-rose-500 text-rose-700 border-2' },
+        taxi:       { icon: '🚕', bg: 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200', active: 'bg-emerald-100 border-emerald-500 text-emerald-700 border-2' }
+    };
+
+    window.familia = JSON.parse(localStorage.getItem('sinergia_familia')) || {
+        perfil1: { id: 'perfil1', nombre: 'Juliana',     tipo: 'infantil', nivel: 'Starter',            score: 0, racha: 0, misionIndex: 0 },
+        perfil2: { id: 'perfil2', nombre: 'Emilia',      tipo: 'infantil', nivel: 'Elementary',         score: 0, racha: 0, misionIndex: 0 },
+        perfil3: { id: 'perfil3', nombre: 'María Elena', tipo: 'adulto',   nivel: 'Pre-Intermediate',   score: 0 },
+        perfil4: { id: 'perfil4', nombre: 'Maxi',        tipo: 'adulto',   nivel: 'Upper-Intermediate', score: 0 }
+    };
+
+    window.perfilActualId   = 'perfil1';
+    window.voiceIndexSeleccionada = 0;
+    window.escenarioAdultoActivo  = { titulo: '', prompt: '', systemInfo: '' };
+    window.esGrabando       = false;
+    window.reconocimientoVoz = null;
+
+    const misionesProgresoInfantil = {
+        greetings: [
+            { pregunta: "Which one means hello?",            audioText: "Which one means hello?",
+              opciones: [{ texto: "Hello! 👋", correcta: true }, { texto: "Goodbye! 👋", correcta: false }] },
+            { pregunta: "Someone is leaving. What do you say?", audioText: "Someone is leaving. What do you say?",
+              opciones: [{ texto: "Good morning!", correcta: false }, { texto: "Goodbye! 👋", correcta: true }] },
+            { pregunta: "You want something. The magic word?",  audioText: "You want something. What is the magic word?",
+              opciones: [{ texto: "No!", correcta: false }, { texto: "Please! 🙏", correcta: true }] },
+            { pregunta: "Someone gives you a gift. You say…",   audioText: "Someone gives you a gift. What do you say?",
+              opciones: [{ texto: "Thank you! 😊", correcta: true }, { texto: "Hello!", correcta: false }] }
+        ],
+        numbers: [
+            { pregunta: "How many? ⭐⭐⭐",     audioText: "Count the stars. How many?",
+              opciones: [{ texto: "Two", correcta: false }, { texto: "Three ⭐", correcta: true }, { texto: "Four", correcta: false }] },
+            { pregunta: "🍎🍎 + 🍎 = ?",       audioText: "Two apples plus one apple. How many?",
+              opciones: [{ texto: "Two", correcta: false }, { texto: "Three 🍎", correcta: true }, { texto: "Five", correcta: false }] },
+            { pregunta: "How many fingers? ✋", audioText: "Count your fingers on one hand.",
+              opciones: [{ texto: "Four", correcta: false }, { texto: "Five ✋", correcta: true }] },
+            { pregunta: "🐱🐱🐱🐱 How many?",   audioText: "Count the cats. How many cats?",
+              opciones: [{ texto: "Three", correcta: false }, { texto: "Four 🐱", correcta: true }, { texto: "Five", correcta: false }] }
+        ],
+        colors: [
+            { pregunta: "The sky ☁️ is…",  audioText: "What colour is the sky?",
+              opciones: [{ texto: "Red 🔴", correcta: false }, { texto: "Blue 🔵", correcta: true }] },
+            { pregunta: "Grass 🌿 is…",    audioText: "What colour is the grass?",
+              opciones: [{ texto: "Green 🟢", correcta: true }, { texto: "Yellow 🟡", correcta: false }] },
+            { pregunta: "The sun ☀️ is…",  audioText: "What colour is the sun?",
+              opciones: [{ texto: "Purple 🟣", correcta: false }, { texto: "Yellow ☀️", correcta: true }] },
+            { pregunta: "Fire 🔥 is…",     audioText: "What colour is fire?",
+              opciones: [{ texto: "Blue 🔵", correcta: false }, { texto: "Red 🔴", correcta: true }] }
+        ],
+        travel: [
+            { pregunta: "You are thirsty. You ask…",       audioText: "You are thirsty. What do you ask for?",
+              opciones: [{ texto: "Water, please! 💧", correcta: true }, { texto: "Goodbye!", correcta: false }] },
+            { pregunta: "You don't understand. You say…",  audioText: "You don't understand. What do you say?",
+              opciones: [{ texto: "Thank you!", correcta: false }, { texto: "Sorry, again please? 🙏", correcta: true }] },
+            { pregunta: "You need help. You say…",          audioText: "You need help. How do you ask?",
+              opciones: [{ texto: "Excuse me! 🙋", correcta: true }, { texto: "Goodbye!", correcta: false }] },
+            { pregunta: "You are lost. You ask…",           audioText: "You are lost. What do you ask?",
+              opciones: [{ texto: "Hello!", correcta: false }, { texto: "Where is it, please? 🗺️", correcta: true }] }
+        ]
+    };
+
+    const bancoEscenariosFijos = {
+        airport:    { id: 'airport',    titulo: "Airport Check-in",  prompt: "Good morning! Passport and booking confirmation, please. Are you checking any bags today?",   systemInfo: "International airport check-in counter." },
+        hotel:      { id: 'hotel',      titulo: "Hotel Reception",   prompt: "Welcome! Do you have a reservation with us? Can I get your last name, please?",               systemInfo: "Hotel reception desk, guest checking in." },
+        restaurant: { id: 'restaurant', titulo: "Restaurant",        prompt: "Hi there! Are you ready to order, or do you need a few more minutes?",                       systemInfo: "International restaurant, waiter taking order." },
+        taxi:       { id: 'taxi',       titulo: "Taxi Ride",         prompt: "Hello! Where are you headed today? First time visiting the city?",                           systemInfo: "Taxi driver picking up tourist from the airport." }
+    };
+
+    function guardarEstado() { localStorage.setItem('sinergia_familia', JSON.stringify(window.familia)); }
+
+    window.cambiarPerfil = function(id) {
+        window.perfilActualId = id;
+        const p = window.familia[id];
+        document.getElementById('vista-infantil').classList.add('hidden');
+        document.getElementById('vista-adultos').classList.add('hidden');
+
+        if (p.tipo === 'infantil') {
+            document.getElementById('vista-infantil').classList.remove('hidden');
+            document.getElementById('puntos-nena').innerText  = p.score + ' XP';
+            document.getElementById('racha-nena').innerText   = p.racha;
+            document.getElementById('saludo-nena').innerText  = `Hello, ${p.nombre}! 👋`;
+            document.getElementById('nivel-nena-tag').innerText = `Level: ${p.nivel}`;
+            window.volverATematicas();
+        } else {
+            document.getElementById('vista-adultos').classList.remove('hidden');
+            document.getElementById('subtitulo-adulto').innerText = `${p.nombre} · ${p.nivel}`;
+            document.getElementById('zona-conversacion-adulto').classList.add('hidden');
+            window.cargarEscenarioFijoAdulto('airport');
+        }
+
+        // Highlight active profile button
+        document.querySelectorAll('.profile-btn').forEach(btn => {
+            btn.classList.toggle('ring-2',   btn.dataset.id === id);
+            btn.classList.toggle('ring-white', btn.dataset.id === id);
+            btn.classList.toggle('scale-105',  btn.dataset.id === id);
+        });
+
+        // Update user avatar initials in chat
+        const initials = p.nombre.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+        const av = document.getElementById('user-avatar-initials');
+        if (av) av.innerText = initials;
+
+        actualizarLeaderboardUI();
+    };
+
+    window.seleccionarTematica = function(idTema) {
+        const p   = window.familia[window.perfilActualId];
+        const list = misionesProgresoInfantil[idTema];
+        const tema = list[p.misionIndex % list.length];
+
+        document.getElementById('panel-tematicas').classList.add('hidden');
+        document.getElementById('zona-mision').classList.remove('hidden');
+        document.getElementById('mision-categoria-titulo').innerText = idTema.toUpperCase();
+        document.getElementById('mision-pregunta-texto').innerText   = tema.pregunta;
+        document.getElementById('btn-audio-infantil').onclick = () => hablarNativo(tema.audioText);
+        document.getElementById('feedback-nena').classList.add('hidden');
+
+        const contenedor = document.getElementById('contenedor-respuestas');
+        contenedor.innerHTML = '';
+        const cols    = tema.opciones.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
+        const wrapper = document.createElement('div');
+        wrapper.className = `grid ${cols} gap-3`;
+        tema.opciones.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'bg-white hover:scale-105 active:scale-95 p-5 rounded-3xl font-extrabold text-base shadow-md border-2 border-transparent hover:border-blue-200 transition-all text-slate-800';
+            btn.innerText = opt.texto;
+            btn.onclick = () => {
+                hablarNativo(opt.texto.replace(/[^\w\s]/gi, ''));
+                setTimeout(() => evaluarRespuestaInfantil(opt.correcta, idTema, btn), 600);
+            };
+            wrapper.appendChild(btn);
+        });
+        contenedor.appendChild(wrapper);
+        setTimeout(() => hablarNativo(tema.audioText), 300);
+    };
+
+    window.volverATematicas = function() {
+        document.getElementById('zona-mision').classList.add('hidden');
+        document.getElementById('panel-tematicas').classList.remove('hidden');
+    };
+
+    window.cargarEscenarioFijoAdulto = function(idEsc) {
+        const esc = bancoEscenariosFijos[idEsc];
+        const s   = SCENARIO_STYLES[idEsc] || {};
+        Object.keys(bancoEscenariosFijos).forEach(k => {
+            const b  = document.getElementById(`btn-esc-${k}`);
+            const sk = SCENARIO_STYLES[k] || {};
+            if (b) b.className = `border p-3 rounded-xl font-bold text-xs transition-all text-center ${sk.bg || 'bg-slate-50 border-slate-200'}`;
+        });
+        const active = document.getElementById(`btn-esc-${idEsc}`);
+        if (active) active.className = `p-3 rounded-xl font-bold text-xs transition-all text-center ${s.active}`;
+
+        window.escenarioAdultoActivo = { titulo: esc.titulo, prompt: esc.prompt, systemInfo: esc.systemInfo };
+        document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
+        document.getElementById('escenario-titulo').innerText = `${s.icon || ''} ${esc.titulo}`;
+        document.getElementById('chat-prompt').innerText = `"${esc.prompt}"`;
+        document.getElementById('user-transcript-wrapper').classList.add('hidden');
+        document.getElementById('ai-evaluation-wrapper').classList.add('hidden');
+        setTimeout(() => hablarNativo(esc.prompt), 200);
+    };
+
+    window.toggleConfigPanel    = function() { document.getElementById('config-panel').classList.toggle('hidden'); };
+    window.cambiarVozSistema    = function() { window.voiceIndexSeleccionada = parseInt(document.getElementById('voice-selector').value) || 0; };
+    window.escucharEscenarioActual = function() { hablarNativo(window.escenarioAdultoActivo.prompt); };
+
+    function inicializarVoces() {
+        if (!('speechSynthesis' in window)) return;
+        function cargarVoces() {
+            const sel   = document.getElementById('voice-selector');
+            const voces = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+            sel.innerHTML = voces.length === 0
+                ? '<option value="0">Default English Voice</option>'
+                : voces.map((v, i) => `<option value="${i}">${v.name} (${v.lang})</option>`).join('');
+        }
+        cargarVoces();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = cargarVoces;
+    }
+
+    function hablarNativo(texto) {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const u     = new SpeechSynthesisUtterance(texto);
+        const voces = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+        if (voces[window.voiceIndexSeleccionada]) u.voice = voces[window.voiceIndexSeleccionada];
+        u.lang = 'en-US'; u.rate = 0.85;
+        window.speechSynthesis.speak(u);
+    }
+
+    function inicializarReconocimientoVoz() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) return;
+        window.reconocimientoVoz = new SR();
+        window.reconocimientoVoz.lang = 'en-US';
+        window.reconocimientoVoz.interimResults = false;
+        window.reconocimientoVoz.onresult = e => { if (window.dispatchGeminiVoz) window.dispatchGeminiVoz(e.results[0][0].transcript); };
+        window.reconocimientoVoz.onerror  = detenerMicUI;
+        window.reconocimientoVoz.onend    = detenerMicUI;
+    }
+
+    window.alternarMic = function() {
+        if (!window.reconocimientoVoz) inicializarReconocimientoVoz();
+        if (!window.reconocimientoVoz) { alert('Use Google Chrome for microphone support.'); return; }
+        if (!window.esGrabando) {
+            window.esGrabando = true;
+            ['wave-ring-1','wave-ring-2','pulse-ring'].forEach(id => document.getElementById(id).classList.remove('hidden'));
+            document.getElementById('mic-status-text').innerText = '🔴 Listening… speak now!';
+            const btn = document.getElementById('btn-mic-adulto');
+            btn.classList.replace('from-blue-500','from-red-500');
+            btn.classList.replace('to-indigo-600','to-red-600');
+            window.reconocimientoVoz.start();
+        } else {
+            window.reconocimientoVoz.stop();
+        }
+    };
+
+    function detenerMicUI() {
         window.esGrabando = false;
-        window.reconocimientoVoz = null;
+        ['wave-ring-1','wave-ring-2','pulse-ring'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        document.getElementById('mic-status-text').innerText = 'Tap to speak in English';
+        const btn = document.getElementById('btn-mic-adulto');
+        btn.classList.replace('from-red-500','from-blue-500');
+        btn.classList.replace('to-red-600','to-indigo-600');
+    }
 
-        const misionesProgresoInfantil = {
-            animals: [
-                { pregunta: "Listen and find the LION!", audioText: "Listen closely: find the lion!", opciones: [{ texto: "Lion", correcta: true, estilo: "bg-amber-500" }, { texto: "Monkey", correcta: false, estilo: "bg-orange-400" }] },
-                { pregunta: "Great job! Now find the ELEPHANT!", audioText: "Now touch the elephant!", opciones: [{ texto: "Bird", correcta: false, estilo: "bg-blue-400" }, { texto: "Elephant", correcta: true, estilo: "bg-indigo-500" }] }
-            ],
-            food: [
-                { pregunta: "How many apples? (2 apples + 1 apple)", audioText: "Two apples plus one apple. How many?", opciones: [{ texto: "Two", correcta: false }, { texto: "Three", correcta: true }, { texto: "Four", correcta: false }] },
-                { pregunta: "Perfect! Now double it: 3 blocks + 3 blocks", audioText: "Three blocks plus three blocks. What is the total?", opciones: [{ texto: "Five", correcta: false }, { texto: "Six", correcta: true }, { texto: "Eight", correcta: false }] }
-            ],
-            greetings: [
-                { pregunta: "How do you say 'Hola' in English?", audioText: "How do you say hola in English?", opciones: [{ texto: "Goodbye", correcta: false }, { texto: "Hello", correcta: true }] }
-            ],
-            games: [
-                { pregunta: "Find the TOY CAR!", audioText: "Look at the options and find the toy car!", opciones: [{ texto: "Doll", correcta: false }, { texto: "Toy Car", correcta: true }] }
-            ]
-        };
+    function lanzarEstrellas() {
+        const c = document.getElementById('stars-container');
+        ['⭐','🌟','✨'].forEach((s, i) => {
+            const el = document.createElement('span');
+            el.className = 'absolute text-2xl float-star pointer-events-none';
+            el.style.left = `${15 + i * 30}%`;
+            el.style.top  = '0';
+            el.style.animationDelay = `${i * 0.15}s`;
+            el.innerText = s;
+            c.appendChild(el);
+            setTimeout(() => el.remove(), 1200);
+        });
+    }
 
-        const bancoEscenariosFijos = {
-            shop: { id: 'shop', titulo: "🛒 Retail Counter Interaction", prompt: "Hello! Can I help you find a specific size or color for this item?", systemInfo: "Airport terminal luxury shop counter environment." },
-            strategy: { id: 'strategy', titulo: "📊 Logistics & Risk Assessment", prompt: "We need to optimize our transport baselines due to volatility. What is your advice on our structural setup?", systemInfo: "Corporate energy management session." },
-            cafe: { id: 'cafe', titulo: "☕ High-end Café Order", prompt: "Welcome! What can I get started for you today? We have fresh croissants ready.", systemInfo: "Outdoor climate-controlled boulevard boardwalk café." }
-        };
+    function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
+        const f = document.getElementById('feedback-nena');
+        const p = window.familia[window.perfilActualId];
+        f.classList.remove('hidden','bg-emerald-50','text-emerald-700','border-emerald-300','bg-rose-50','text-rose-700','border-rose-300');
+        if (esCorrecto) {
+            btn.classList.add('bg-emerald-100','border-emerald-400','correct-ring');
+            f.innerText = '✨ Brilliant! Well done!';
+            f.classList.add('bg-emerald-50','text-emerald-700','border-emerald-300');
+            lanzarEstrellas();
+            p.score += 50; p.misionIndex += 1;
+            guardarEstado();
+            document.getElementById('puntos-nena').innerText = p.score + ' XP';
+            setTimeout(() => hablarNativo('Brilliant! Well done!'), 100);
+            setTimeout(() => window.seleccionarTematica(idTema), 1900);
+        } else {
+            btn.classList.add('bg-rose-100','border-rose-400');
+            setTimeout(() => btn.classList.remove('bg-rose-100','border-rose-400'), 900);
+            f.innerText = '🔍 Try again — listen carefully!';
+            f.classList.add('bg-rose-50','text-rose-700','border-rose-300');
+        }
+        actualizarLeaderboardUI();
+    }
 
-        window.cambiarPerfil = function(id) {
-            window.perfilActualId = id;
-            const p = window.familia[id];
-            document.getElementById('vista-infantil').classList.add('hidden');
-            document.getElementById('vista-adultos').classList.add('hidden');
-            document.getElementById('user-transcript').classList.add('hidden');
-            document.getElementById('ai-evaluation').classList.add('hidden');
-
-            if (p.tipo === 'infantil') {
-                document.getElementById('vista-infantil').classList.remove('hidden');
-                document.getElementById('puntos-nena').innerText = p.score + " XP";
-                document.getElementById('racha-nena').innerText = p.racha;
-                document.getElementById('saludo-nena').innerText = `¡Hola, ${p.nombre}!`;
-                window.volverATematicas();
+    function actualizarLeaderboardUI() {
+        const list = document.getElementById('leaderboard-list');
+        if (!list) return;
+        list.innerHTML = '';
+        const medals = ['🥇','🥈','🥉',''];
+        Object.values(window.familia).sort((a,b) => b.score - a.score).forEach((p, idx) => {
+            const li = document.createElement('li');
+            if (idx === 0) {
+                li.className = 'flex justify-between items-center bg-yellow-50 border border-yellow-200 px-3 py-2 rounded-xl font-extrabold text-slate-800';
+                li.innerHTML = `<span>${medals[0]} ${p.nombre}</span><span class="text-yellow-600">${p.score} XP</span>`;
             } else {
-                document.getElementById('vista-adultos').classList.remove('hidden');
-                document.getElementById('subtitulo-adulto').innerText = `Active Explorer: ${p.nombre} — Nivel: [${p.nivel}]`;
-                document.getElementById('zona-conversacion-adulto').classList.add('hidden');
-                window.cargarEscenarioFijoAdulto('shop');
+                li.className = 'flex justify-between items-center px-2 py-1 text-slate-500';
+                li.innerHTML = `<span>${medals[idx] || (idx+1)+'.'} ${p.nombre}</span><span class="font-bold">${p.score} XP</span>`;
             }
-            actualizarLeaderboardUI();
-        };
+            list.appendChild(li);
+        });
+    }
 
-        window.seleccionarTematica = function(idTema) {
-            const p = window.familia[window.perfilActualId];
-            const listaMisiones = misionesProgresoInfantil[idTema];
-            let idx = p.misionIndex % listaMisiones.length;
-            const tema = listaMisiones[idx];
-
-            document.getElementById('panel-tematicas').classList.add('hidden');
-            document.getElementById('zona-mision').classList.remove('hidden');
-            document.getElementById('mision-categoria-titulo').innerText = idTema.toUpperCase();
-            document.getElementById('mision-pregunta-texto').innerText = tema.pregunta;
-            document.getElementById('btn-audio-infantil').onclick = () => hablarNativo(tema.audioText);
-
-            const contenedor = document.getElementById('contenedor-respuestas');
-            contenedor.innerHTML = '';
-            document.getElementById('feedback-nena').classList.add('hidden');
-
-            let wrapper = document.createElement('div');
-            wrapper.className = "grid grid-cols-2 gap-4";
-
-            tema.opciones.forEach(opt => {
-                let btn = document.createElement('button');
-                btn.className = `${opt.estilo || 'bg-white text-slate-800 border-slate-200'} p-4 rounded-xl font-bold text-sm shadow-soft border`;
-                btn.innerText = opt.texto;
-                btn.onclick = () => {
-                    hablarNativo(opt.texto);
-                    setTimeout(() => { evaluarRespuestaInfantil(opt.correcta, idTema); }, 800);
-                };
-                wrapper.appendChild(btn);
-            });
-            contenedor.appendChild(wrapper);
-            setTimeout(() => { hablarNativo(tema.audioText); }, 200);
-        };
-
-        window.volverATematicas = function() {
-            document.getElementById('zona-mision').classList.add('hidden');
-            document.getElementById('panel-tematicas').classList.remove('hidden');
-        };
-
-        window.cargarEscenarioFijoAdulto = function(idEsc) {
-            const esc = bancoEscenariosFijos[idEsc];
-            Object.values(bancoEscenariosFijos).forEach(e => {
-                if(document.getElementById(`btn-esc-${e.id}`)) {
-                    document.getElementById(`btn-esc-${e.id}`).className = "bg-slate-50 border p-3 rounded-xl font-bold text-xs shadow-sm text-center";
-                }
-            });
-            if(document.getElementById(`btn-esc-${idEsc}`)) {
-                document.getElementById(`btn-esc-${idEsc}`).className = "bg-blue-50 border-blue-400 p-3 rounded-xl font-bold text-xs shadow-sm text-center text-blue-600 border";
-            }
-            window.escenarioAdultoActivo = { titulo: esc.titulo, prompt: esc.prompt, systemInfo: esc.systemInfo };
-            document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
-            document.getElementById('escenario-titulo').innerText = window.escenarioAdultoActivo.titulo;
-            document.getElementById('chat-prompt').innerHTML = `<strong>[AI Character]:</strong> "${window.escenarioAdultoActivo.prompt}"`;
-            document.getElementById('user-transcript').classList.add('hidden');
-            document.getElementById('ai-evaluation').classList.add('hidden');
-            setTimeout(() => { hablarNativo(window.escenarioAdultoActivo.prompt); }, 200);
-        };
-
-        window.toggleConfigPanel = function() { document.getElementById('config-panel').classList.toggle('hidden'); };
-        window.cambiarVozSistema = function() { window.voiceIndexSeleccionada = parseInt(document.getElementById('voice-selector').value) || 0; };
-        window.escucharEscenarioActual = function() { hablarNativo(window.escenarioAdultoActivo.prompt); };
-
-        function guardarEstado() { localStorage.setItem('sinergia_familia', JSON.stringify(window.familia)); }
-
-        function inicializarVoces() {
-            if ('speechSynthesis' in window) {
-                function cargarVoces() {
-                    const selector = document.getElementById('voice-selector');
-                    const voces = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-                    selector.innerHTML = '';
-                    if(voces.length === 0) {
-                        selector.innerHTML = '<option value="0">Default English Voice</option>';
-                        return;
-                    }
-                    voces.forEach((v, index) => {
-                        let opt = document.createElement('option');
-                        opt.value = index;
-                        opt.innerText = `${v.name} (${v.lang})`;
-                        selector.appendChild(opt);
-                    });
-                }
-                cargarVoces();
-                if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = cargarVoces;
-            }
-        }
-
-        function hablarNativo(texto) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                let utterance = new SpeechSynthesisUtterance(texto);
-                const voces = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-                if(voces.length > 0 && voces[window.voiceIndexSeleccionada]) utterance.voice = voces[window.voiceIndexSeleccionada];
-                utterance.lang = 'en-US';
-                utterance.rate = 0.85;
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        function inicializarReconocimientoVoz() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (SpeechRecognition) {
-                window.reconocimientoVoz = new SpeechRecognition();
-                window.reconocimientoVoz.lang = 'en-US';
-                window.reconocimientoVoz.interimResults = false;
-                window.reconocimientoVoz.onresult = (event) => {
-                    const textoEscuchado = event.results[0][0].transcript;
-                    if(window.dispatchGeminiVoz) window.dispatchGeminiVoz(textoEscuchado);
-                };
-                window.reconocimientoVoz.onerror = () => { detenerMicUI(); };
-                window.reconocimientoVoz.onend = () => { detenerMicUI(); };
-            }
-        }
-
-        window.alternarMic = function() {
-            if (!window.reconocimientoVoz) { inicializarReconocimientoVoz(); }
-            if (!window.reconocimientoVoz) { alert("Tu navegador no soporta micrófono web directo. Usa Google Chrome."); return; }
-            
-            if (!window.esGrabando) {
-                window.esGrabando = true;
-                document.getElementById('pulse-ring').classList.remove('hidden');
-                document.getElementById('mic-status-text').innerText = "Escuchando voz... ¡Hablá ahora!";
-                document.getElementById('btn-mic-adulto').classList.replace('bg-blue-600', 'bg-red-600');
-                window.reconocimientoVoz.start();
-            } else {
-                window.reconocimientoVoz.stop();
-            }
-        };
-
-        function detenerMicUI() {
-            window.esGrabando = false;
-            document.getElementById('pulse-ring').classList.add('hidden');
-            document.getElementById('mic-status-text').innerText = "Hacé clic para hablar (Voz Real a Gemini)";
-            document.getElementById('btn-mic-adulto').classList.replace('bg-red-600', 'bg-blue-600');
-        }
-
-        function evaluarRespuestaInfantil(esCorrecto, idTema) {
-            const f = document.getElementById('feedback-nena');
-            const p = window.familia[window.perfilActualId];
-            f.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700', 'border-emerald-200', 'bg-rose-50', 'text-rose-700', 'border-rose-200');
-            
-            if (esCorrecto) {
-                f.innerText = "✨ ¡Excelente! ¡Desafío completado con éxito!";
-                f.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
-                p.score += 50;
-                p.misionIndex += 1;
+    function renderizarConfiguracionPerfiles() {
+        const container = document.getElementById('profiles-config-container');
+        if (!container) return;
+        container.innerHTML = '';
+        const niveles = ['Starter','Elementary','Pre-Intermediate','Intermediate','Upper-Intermediate','Advanced'];
+        Object.values(window.familia).forEach(p => {
+            const colors = PROFILE_COLORS[p.id] || 'from-slate-400 to-slate-600';
+            const card   = document.createElement('div');
+            card.className = 'bg-slate-50 border p-3 rounded-xl space-y-2 text-xs';
+            card.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <div class="h-6 w-6 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-[10px] font-bold">${p.nombre[0]}</div>
+                    <p class="font-bold text-slate-600">${p.nombre}</p>
+                </div>
+                <select id="sel-handicap-${p.id}" class="w-full bg-white border p-1.5 rounded-lg text-slate-600 text-xs focus:outline-none focus:ring-2 focus:ring-blue-200">
+                    ${niveles.map(n => `<option value="${n}" ${p.nivel===n?'selected':''}>${n}</option>`).join('')}
+                </select>`;
+            container.appendChild(card);
+            document.getElementById(`sel-handicap-${p.id}`).onchange = function() {
+                window.familia[p.id].nivel = this.value;
                 guardarEstado();
-                document.getElementById('puntos-nena').innerText = p.score + " XP";
-                setTimeout(() => { hablarNativo("Brilliant! Task completed!"); }, 100);
-                setTimeout(() => { window.seleccionarTematica(idTema); }, 1500);
-            } else {
-                f.innerText = "🔍 ¡Casi! Escuchemos de vuelta.";
-                f.classList.add('bg-rose-50', 'text-rose-700', 'border-rose-200');
-            }
+                window.cambiarPerfil(window.perfilActualId);
+            };
+        });
+    }
+
+    function renderizarBotonesPerfil() {
+        const container = document.getElementById('profile-buttons-container');
+        if (!container) return;
+        container.innerHTML = '';
+        Object.values(window.familia).forEach(p => {
+            const colors = PROFILE_COLORS[p.id] || 'from-slate-400 to-slate-600';
+            const btn    = document.createElement('button');
+            btn.className   = 'profile-btn flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition-all';
+            btn.dataset.id  = p.id;
+            btn.innerHTML   = `
+                <div class="h-5 w-5 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-[9px] font-bold">${p.nombre[0]}</div>
+                <span class="text-slate-200 font-semibold text-xs">${p.nombre.split(' ')[0]}</span>`;
+            btn.onclick = () => window.cambiarPerfil(p.id);
+            container.appendChild(btn);
+        });
+    }
+
+    function renderizarSelectorEscenariosAdultos() {
+        const container = document.getElementById('grid-escenarios-adultos');
+        if (!container) return;
+        container.innerHTML = '';
+        Object.values(bancoEscenariosFijos).forEach(e => {
+            const s   = SCENARIO_STYLES[e.id] || { icon: '📍', bg: 'bg-slate-50 border-slate-200' };
+            const btn = document.createElement('button');
+            btn.id        = `btn-esc-${e.id}`;
+            btn.className = `border p-3 rounded-xl font-bold text-xs transition-all text-center ${s.bg}`;
+            btn.innerHTML = `<div class="text-2xl mb-1.5">${s.icon}</div><div>${e.titulo}</div>`;
+            btn.onclick   = () => window.cargarEscenarioFijoAdulto(e.id);
+            container.appendChild(btn);
+        });
+    }
+
+    inicializarVoces();
+    inicializarReconocimientoVoz();
+    renderizarConfiguracionPerfiles();
+    renderizarBotonesPerfil();
+    renderizarSelectorEscenariosAdultos();
+    window.cambiarPerfil('perfil1');
+</script>
+
+<!-- ══════════════════════════════════ VERCEL CONNECTION ══════════════════════════════════ -->
+<script type="text/javascript">
+
+    window.generarEscenarioSorpresaAI = async function() {
+        document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
+        document.getElementById('chat-prompt').innerHTML = "<span class='text-blue-400 animate-pulse text-sm'>Gemini is preparing your scene…</span>";
+        document.getElementById('user-transcript-wrapper').classList.add('hidden');
+        document.getElementById('ai-evaluation-wrapper').classList.add('hidden');
+        try {
+            const res     = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'generate_scenario', level: window.familia[window.perfilActualId].nivel })
+            });
+            const resJson = await res.json();
+            if (resJson.error) throw new Error(resJson.error);
+            window.escenarioAdultoActivo = { titulo: resJson.setup_title, prompt: resJson.ai_opening, systemInfo: 'International travel roleplay scenario' };
+            document.getElementById('escenario-titulo').innerText = `🎲 ${resJson.setup_title}`;
+            document.getElementById('chat-prompt').innerText = `"${resJson.ai_opening}"`;
+            hablarNativo(resJson.ai_opening);
+        } catch(e) {
+            document.getElementById('chat-prompt').innerText = 'Connection error — check Vercel deployment.';
+            console.error(e);
+        }
+    };
+
+    window.dispatchGeminiVoz = async function(textoVozReal) {
+        const p = window.familia[window.perfilActualId];
+
+        document.getElementById('user-transcript').innerText = textoVozReal;
+        document.getElementById('user-transcript-wrapper').classList.remove('hidden');
+
+        const evalWrapper = document.getElementById('ai-evaluation-wrapper');
+        const evalDiv     = document.getElementById('ai-evaluation');
+        evalDiv.innerHTML = "<span class='text-blue-400 animate-pulse text-xs'>Analysing…</span>";
+        evalWrapper.classList.remove('hidden');
+
+        try {
+            const res     = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'evaluate_voice', textInput: textoVozReal,
+                    level: p.nivel, currentPrompt: window.escenarioAdultoActivo.prompt,
+                    systemInfo: window.escenarioAdultoActivo.systemInfo
+                })
+            });
+            const resJson = await res.json();
+            if (resJson.error) throw new Error(resJson.error);
+
+            evalDiv.innerHTML = `
+                <p class="font-medium leading-relaxed">${resJson.reply}</p>
+                <div class="mt-2 pt-2 border-t border-blue-100 space-y-1">
+                    <p class="text-amber-600 text-xs font-semibold">💬 ${resJson.correction}</p>
+                    <p class="text-emerald-600 text-xs font-bold">🎉 +${resJson.xp} XP earned!</p>
+                </div>`;
+
+            // Chain: AI reply becomes the new prompt
+            window.escenarioAdultoActivo.prompt = resJson.reply;
+            document.getElementById('chat-prompt').innerText = `"${resJson.reply}"`;
+
+            hablarNativo(resJson.reply);
+            p.score += resJson.xp;
+            guardarEstado();
             actualizarLeaderboardUI();
+        } catch(e) {
+            evalDiv.innerText = 'Server error — check Vercel logs.';
+            console.error(e);
         }
+    };
 
-        function actualizarLeaderboardUI() {
-            const list = document.getElementById('leaderboard-list');
-            if(!list) return;
-            list.innerHTML = '';
-            let ordenados = Object.values(window.familia).sort((a, b) => b.score - a.score);
-            ordenados.forEach((p, idx) => {
-                let li = document.createElement('li');
-                if (idx === 0) {
-                    li.className = "flex justify-between items-center bg-blue-50 p-2 rounded-lg text-slate-900 font-bold text-xs border border-blue-100 shadow-sm";
-                    li.innerHTML = `<span>🏆 ${p.nombre}</span> <span>${p.score} XP</span>`;
-                } else {
-                    li.className = "flex justify-between items-center px-2 py-1 text-[11px]";
-                    li.innerHTML = `<span>${idx + 1}. ${p.nombre}</span> <span class="font-semibold text-slate-500">${p.score} XP</span>`;
-                }
-                list.appendChild(li);
-            });
-        }
-
-        function renderizarConfiguracionPerfiles() {
-            const container = document.getElementById('profiles-config-container');
-            if(!container) return;
-            container.innerHTML = '';
-            Object.values(window.familia).forEach(p => {
-                let card = document.createElement('div');
-                card.className = "bg-slate-50 border p-3 rounded-xl space-y-2 text-xs";
-                card.innerHTML = `
-                    <p class="font-bold text-slate-400 uppercase">${p.nombre}</p>
-                    <select id="sel-handicap-${p.id}" class="w-full bg-white border p-1 rounded text-slate-600">
-                        <option value="Initial" ${p.nivel==='Initial'?'selected':''}>Nivel: Initial</option>
-                        <option value="Intermediate" ${p.nivel==='Intermediate'?'selected':''}>Nivel: Intermediate</option>
-                        <option value="Advanced" ${p.nivel==='Advanced'?'selected':''}>Nivel: Advanced</option>
-                    </select>
-                `;
-                container.appendChild(card);
-                document.getElementById(`sel-handicap-${p.id}`).onchange = function() {
-                    window.familia[p.id].nivel = this.value;
-                    guardarEstado();
-                    window.cambiarPerfil(window.perfilActualId);
-                };
-            });
-        }
-
-        function renderizarBotonesPerfil() {
-            const container = document.getElementById('profile-buttons-container');
-            if(!container) return;
-            container.innerHTML = '';
-            Object.values(window.familia).forEach(p => {
-                let btn = document.createElement('button');
-                btn.className = "font-bold px-3 py-1 rounded-lg border text-xs bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700 transition-colors";
-                btn.innerText = p.nombre;
-                btn.onclick = () => window.cambiarPerfil(p.id);
-                container.appendChild(btn);
-            });
-        }
-
-        function renderizarSelectorEscenariosAdultos() {
-            const container = document.getElementById('grid-escenarios-adultos');
-            if(!container) return;
-            container.innerHTML = '';
-            Object.values(bancoEscenariosFijos).forEach(e => {
-                let btn = document.createElement('button');
-                btn.id = `btn-esc-${e.id}`;
-                btn.className = "bg-slate-50 border p-3 rounded-xl font-bold text-xs transition-all text-center";
-                btn.innerText = e.titulo;
-                btn.onclick = () => window.cargarEscenarioFijoAdulto(e.id);
-                container.appendChild(btn);
-            });
-        }
-
-        inicializarVoces();
-        inicializarReconocimientoVoz();
-        renderizarConfiguracionPerfiles();
-        renderizarBotonesPerfil();
-        renderizarSelectorEscenariosAdultos();
-        window.cambiarPerfil('perfil1');
-    </script>
-
-    <!-- CONEXIÓN CON SERVIDOR VERCEL -->
-    <script type="text/javascript">
-        window.generarEscenarioSorpresaAI = async function() {
-            document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
-            document.getElementById('chat-prompt').innerHTML = "<span class='text-blue-500 animate-pulse'>Vercel está despertando a Gemini para armar tu rol...</span>";
-
-            try {
-                const response = await fetch("https://project-5y7mn.vercel.app/api/gemini", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        action: "generate_scenario",
-                        level: window.familia[window.perfilActualId].nivel
-                    })
-                });
-
-                const resJson = await response.json();
-                window.escenarioAdultoActivo = { 
-                    titulo: `🎲 Gemini: ${resJson.setup_title}`, 
-                    prompt: resJson.ai_opening, 
-                    systemInfo: "Language Hub Global Professional Roleplay Context Setup" 
-                };
-                
-                document.getElementById('escenario-titulo').innerText = window.escenarioAdultoActivo.titulo;
-                document.getElementById('chat-prompt').innerHTML = `<strong>[AI Character]:</strong> "${window.escenarioAdultoActivo.prompt}"`;
-                document.getElementById('user-transcript').classList.add('hidden');
-                document.getElementById('ai-evaluation').classList.add('hidden');
-                
-                window.speechSynthesis.cancel();
-                let utterance = new SpeechSynthesisUtterance(window.escenarioAdultoActivo.prompt);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.85;
-                window.speechSynthesis.speak(utterance);
-
-            } catch (e) {
-                document.getElementById('chat-prompt').innerText = "Error en el puente de Vercel. Verifica el despliegue.";
-                console.error(e);
-            }
-        };
-
-        window.dispatchGeminiVoz = async function(textoVozReal) {
-            const p = window.familia[window.perfilActualId];
-            document.getElementById('user-transcript').innerHTML = `<strong>[Tu Voz en Inglés]:</strong> "${textoVozReal}"`;
-            document.getElementById('user-transcript').classList.remove('hidden');
-
-            const evalDiv = document.getElementById('ai-evaluation');
-            evalDiv.innerHTML = "<span class='text-blue-500 animate-pulse'>Servidor analizando fonética y gramática estructural...</span>";
-            evalDiv.classList.remove('hidden');
-
-            try {
-                const response = await fetch("https://project-5y7mn.vercel.app/api/gemini", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        action: "evaluate_voice",
-                        textInput: textoVozReal,
-                        level: p.nivel,
-                        currentPrompt: window.escenarioAdultoActivo.prompt,
-                        systemInfo: window.escenarioAdultoActivo.systemInfo
-                    })
-                });
-
-                const resJson = await response.json();
-
-                evalDiv.innerHTML = `
-                    <p class="text-blue-600 font-bold"><strong>[Personaje Gemini]:</strong> "${resJson.reply}"</p>
-                    <p class="text-amber-600 font-medium mt-2"><strong>Feedback Estructural:</strong> ${resJson.correction || 'Perfect structural configuration!'}</p>
-                    <p class="text-emerald-600 font-extrabold mt-1">🎉 ¡Ganaste +${resJson.xp} XP para el ranking familiar!</p>
-                `;
-                
-                window.speechSynthesis.cancel();
-                let utterance = new SpeechSynthesisUtterance(resJson.reply);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.85;
-                window.speechSynthesis.speak(utterance);
-
-                p.score += resJson.xp;
-                localStorage.setItem('sinergia_familia', JSON.stringify(window.familia));
-                actualizarLeaderboardUI();
-
-            } catch (e) {
-                evalDiv.innerText = "Error en el payload devuelto por el servidor de Vercel.";
-                console.error(e);
-            }
-        }; 
-    </script>
+</script>
 </body>
 </html>
